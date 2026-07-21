@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SBS아카데미 블로그 프롬프트 생성기</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;background:#f0f4f9;color:#222;min-height:100vh;}
+.header{background:linear-gradient(135deg,#1a3a6b,#2563b0);color:#fff;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+.header h1{font-size:1.15rem;font-weight:700;}
+.header p{font-size:.78rem;opacity:.8;margin-top:2px;}
+.reset-btn{background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.4);color:#fff;border-radius:7px;padding:6px 14px;font-size:.8rem;cursor:pointer;font-family:inherit;}
+.reset-btn:hover{background:rgba(255,255,255,.3);}
+.prog{background:#fff;border-bottom:1px solid #e0e6f0;padding:13px 24px;}
+.steps{display:flex;align-items:center;max-width:760px;margin:0 auto;}
+.si{display:flex;align-items:center;flex:1;}
+.sc{width:28px;height:28px;border-radius:50%;background:#dde4f0;color:#888;font-size:.82rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;transition:.3s;}
+.sc.active{background:#2563b0;color:#fff;}
+.sc.done{background:#16a34a;color:#fff;}
+.sl{font-size:.7rem;color:#888;margin-left:5px;white-space:nowrap;}
+.sl.active{color:#2563b0;font-weight:600;}
+.sline{flex:1;height:2px;background:#dde4f0;margin:0 5px;}
+.sline.done{background:#16a34a;}
+.main{max-width:780px;margin:22px auto;padding:0 16px 60px;}
+.card{background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);padding:24px;margin-bottom:14px;}
+.card h2{font-size:1.1rem;color:#1a3a6b;margin-bottom:4px;}
+.sub{font-size:.82rem;color:#666;margin-bottom:16px;}
+.type-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;}
+.tb{border:2px solid #dde4f0;border-radius:10px;padding:16px;cursor:pointer;text-align:center;transition:.2s;background:#f8fafc;}
+.tb:hover,.tb.sel{border-color:#2563b0;background:#eef4ff;}
+.tb .ico{font-size:1.8rem;margin-bottom:6px;}
+.tb .nm{font-size:.96rem;font-weight:700;color:#1a3a6b;}
+.tb .ds{font-size:.75rem;color:#666;margin-top:3px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:9px;}
+.gb{border:2px solid #dde4f0;border-radius:9px;padding:12px 10px;cursor:pointer;transition:.2s;background:#f8fafc;}
+.gb:hover,.gb.sel{border-color:#2563b0;background:#eef4ff;}
+.gb .gi{font-size:1.3rem;margin-bottom:4px;}
+.gb .gn{font-size:.84rem;font-weight:700;color:#1a3a6b;}
+.gb .gd{font-size:.71rem;color:#666;margin-top:2px;line-height:1.4;}
+.field{margin-bottom:13px;}
+.field label{display:block;font-size:.82rem;font-weight:600;color:#333;margin-bottom:4px;}
+.field input,.field textarea{width:100%;border:1.5px solid #d0d9e8;border-radius:7px;padding:8px 11px;font-size:.87rem;font-family:inherit;transition:.2s;background:#fafcff;}
+.field input:focus,.field textarea:focus{outline:none;border-color:#2563b0;background:#fff;}
+.field textarea{resize:vertical;min-height:68px;line-height:1.5;}
+.hint{font-size:.73rem;color:#888;margin-top:3px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.faq-row{background:#f6f8fb;border-radius:8px;padding:10px;margin-bottom:6px;}
+.faq-row label{font-size:.77rem;color:#555;font-weight:600;}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;}
+.chip{border:1.5px solid #b0c4e8;border-radius:14px;padding:3px 10px;font-size:.75rem;cursor:pointer;background:#f0f5ff;color:#2563b0;transition:.2s;font-family:inherit;}
+.chip:hover{background:#2563b0;color:#fff;border-color:#2563b0;}
+.chip.ok{background:#16a34a;color:#fff;border-color:#16a34a;}
+.tpl{border:1.5px solid #dde4f0;border-radius:8px;padding:9px 12px;margin-bottom:6px;cursor:pointer;transition:.2s;background:#f8fafc;}
+.tpl:hover{border-color:#2563b0;background:#eef4ff;}
+.tpl-lbl{font-size:.71rem;color:#2563b0;font-weight:600;margin-bottom:2px;}
+.tpl-txt{font-size:.83rem;color:#222;line-height:1.4;}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.sc2{display:flex;align-items:center;gap:6px;font-size:.79rem;cursor:pointer;padding:5px 7px;border-radius:6px;}
+.sc2:hover{background:#f0f4ff;}
+.sc2 input{width:15px;height:15px;cursor:pointer;}
+.cat-tabs{display:flex;flex-wrap:wrap;gap:7px;margin-top:5px;}
+.ctab{border:2px solid #dde4f0;border-radius:18px;padding:6px 14px;cursor:pointer;font-size:.81rem;font-weight:600;color:#555;background:#f8fafc;transition:.2s;font-family:inherit;}
+.ctab:hover,.ctab.sel{border-color:#2563b0;background:#2563b0;color:#fff;}
+.stabs{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;}
+.stab{border:1.5px solid #b0c4e8;border-radius:13px;padding:3px 12px;cursor:pointer;font-size:.77rem;font-weight:600;color:#2563b0;background:#eef4ff;transition:.2s;font-family:inherit;}
+.stab:hover,.stab.sel{background:#2563b0;color:#fff;border-color:#2563b0;}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:6px;margin-top:6px;}
+.cc{border:2px solid #dde4f0;border-radius:8px;padding:10px 8px;cursor:pointer;background:#f8fafc;transition:.2s;text-align:center;}
+.cc:hover,.cc.sel{border-color:#2563b0;background:#eef4ff;}
+.cc .cn{font-size:.8rem;font-weight:700;color:#1a3a6b;line-height:1.3;}
+.cc .cu{font-size:.68rem;color:#666;margin-top:3px;line-height:1.3;}
+.sel-info{background:#eef4ff;border-radius:8px;padding:8px 12px;font-size:.8rem;color:#1a3a6b;margin-bottom:12px;border-left:3px solid #2563b0;}
+.fsb{border:1.5px solid #b0c4e8;border-radius:6px;padding:3px 9px;font-size:.75rem;cursor:pointer;background:#f0f5ff;color:#2563b0;transition:.2s;font-family:inherit;margin:2px;}
+.fsb:hover{background:#2563b0;color:#fff;border-color:#2563b0;}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.sh label{font-size:.82rem;font-weight:600;color:#333;margin:0;}
+.stog{background:none;border:none;color:#2563b0;font-size:.75rem;cursor:pointer;font-family:inherit;text-decoration:underline;}
+#output-box{width:100%;min-height:360px;font-family:'Courier New',monospace;font-size:.76rem;border:1.5px solid #d0d9e8;border-radius:8px;padding:12px;background:#f9fbff;line-height:1.6;resize:vertical;}
+.cbtn{background:#2563b0;color:#fff;border:none;border-radius:7px;padding:9px 18px;font-size:.87rem;font-weight:600;cursor:pointer;transition:.2s;font-family:inherit;}
+.cbtn:hover{background:#1a3a6b;}
+.cbtn.ok{background:#16a34a;}
+.abtn{background:#fff;border:1.5px solid #2563b0;color:#2563b0;border-radius:7px;padding:9px 14px;font-size:.83rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;transition:.2s;}
+.abtn:hover{background:#eef4ff;}
+.cbar{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center;}
+/* Claude panel */
+.claude-box{background:#fff8f3;border:2px solid #e8864a;border-radius:12px;padding:18px;margin-top:16px;}
+.claude-box h3{font-size:.97rem;color:#b84000;margin-bottom:10px;font-weight:700;}
+.api-row{display:flex;gap:8px;margin-bottom:8px;}
+.api-row input{flex:1;border:1.5px solid #d0b0a0;border-radius:7px;padding:8px 10px;font-size:.84rem;font-family:inherit;background:#fffaf7;}
+.gen-btn{background:#cc5500;color:#fff;border:none;border-radius:7px;padding:9px 18px;font-size:.87rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.2s;}
+.gen-btn:hover{background:#aa4400;}
+.gen-btn:disabled{background:#bbb;cursor:not-allowed;}
+.api-warn{font-size:.72rem;color:#a04020;margin-bottom:8px;}
+#blog-result{background:#fff;border:1.5px solid #d0c0b0;border-radius:8px;padding:14px;margin-top:10px;font-size:.86rem;line-height:1.8;white-space:pre-wrap;max-height:580px;overflow-y:auto;display:none;}
+#res-actions{display:none;margin-top:8px;gap:8px;}
+.rcp-btn{background:#16a34a;color:#fff;border:none;border-radius:7px;padding:8px 16px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;}
+@keyframes blink{50%{opacity:.4;}}
+.loading{animation:blink 1s infinite;}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px;}
+.nbtn{border:none;border-radius:8px;padding:10px 24px;font-size:.89rem;font-weight:600;cursor:pointer;transition:.2s;font-family:inherit;}
+.prev{background:#e8ecf4;color:#555;}
+.prev:hover{background:#d0d9e8;}
+.next{background:#2563b0;color:#fff;}
+.next:hover{background:#1a3a6b;}
+.next:disabled{background:#b0bcd8;cursor:not-allowed;}
+.finish{background:#16a34a;color:#fff;}
+.finish:hover{background:#13923a;}
+.sbar{background:#eef4ff;border-radius:8px;padding:8px 12px;font-size:.79rem;color:#1a3a6b;margin-bottom:12px;}
+.hidden{display:none!important;}
+.prompt-wrap{background:#f9fbff;border:1.5px solid #dde4f0;border-radius:10px;padding:16px;margin-top:14px;}
+.prompt-wrap-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.prompt-wrap-head span{font-size:.86rem;font-weight:600;color:#1a3a6b;}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>SBS아카데미 블로그 프롬프트 생성기</h1>
+    <p>단계별 클릭 → Claude가 블로그 원고를 바로 작성합니다</p>
+  </div>
+  <button class="reset-btn" onclick="resetAll()">↺ 처음부터</button>
+</div>
+
+<div class="prog">
+  <div class="steps">
+    <div class="si"><div class="sc active" id="sc1" onclick="jmp(1)">1</div><span class="sl active" id="sl1">기본 설정</span><div class="sline" id="ln1"></div></div>
+    <div class="si"><div class="sc" id="sc2" onclick="jmp(2)">2</div><span class="sl" id="sl2">스타일</span><div class="sline" id="ln2"></div></div>
+    <div class="si"><div class="sc" id="sc3" onclick="jmp(3)">3</div><span class="sl" id="sl3">키워드</span><div class="sline" id="ln3"></div></div>
+    <div class="si"><div class="sc" id="sc4" onclick="jmp(4)">4</div><span class="sl" id="sl4">과목 선택</span><div class="sline" id="ln4"></div></div>
+    <div class="si"><div class="sc" id="sc5" onclick="jmp(5)">5</div><span class="sl" id="sl5">블로그 생성</span></div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- STEP 1 -->
+<div id="s1" class="card">
+  <h2>기본 설정</h2>
+  <p class="sub">지점명을 입력하고 글 유형을 선택하세요.</p>
+  <div class="field">
+    <label>지점명 <span style="color:#e33">*</span></label>
+    <input type="text" id="branch" placeholder="예: 강남서초점, 신촌점, 부산점" oninput="localStorage.setItem('br',this.value)">
+    <div class="hint">학원명 'SBS아카데미컴퓨터아트학원' 뒤에 붙는 지점명 · 자동 저장됩니다</div>
+  </div>
+  <div class="field">
+    <label>글 유형 <span style="color:#e33">*</span></label>
+    <div class="type-btns">
+      <div class="tb" id="btn-I" onclick="selType('정보성')"><div class="ico">📰</div><div class="nm">정보성</div><div class="ds">학원·강사 입장에서<br>과목을 소개하는 글</div></div>
+      <div class="tb" id="btn-R" onclick="selType('후기성')"><div class="ico">💬</div><div class="nm">후기성</div><div class="ds">수강생 입장에서<br>체험담처럼 쓰는 글</div></div>
+    </div>
+  </div>
+  <div class="nav"><span></span><button class="nbtn next" id="n1" onclick="nxt()" disabled>다음 →</button></div>
+</div>
+
+<!-- STEP 2 -->
+<div id="s2" class="card hidden">
+  <h2 id="s2t">스타일 선택</h2>
+  <p class="sub" id="s2s">이번 글에 맞는 스타일을 선택하세요.</p>
+  <div class="grid" id="sgrid"></div>
+  <div class="nav"><button class="nbtn prev" onclick="prv()">← 이전</button><button class="nbtn next" id="n2" onclick="nxt()" disabled>다음 →</button></div>
+</div>
+
+<!-- STEP 3 -->
+<div id="s3" class="card hidden">
+  <h2>키워드 입력</h2>
+  <p class="sub">네이버 SEO 키워드를 입력하세요.</p>
+  <div class="field"><label>메인 키워드 <span style="color:#e33">*</span></label><input type="text" id="km" placeholder="예: 강남컴퓨터학원, 서초디자인학원"><div class="hint">지역명+업종명 형태. 제목 맨 앞에 고정됩니다.</div></div>
+  <div class="field"><label>서브 키워드 <span style="color:#e33">*</span></label><input type="text" id="ks" placeholder="예: 포토샵, GTQ자격증, AI바이브코딩"><div class="hint">과목명 또는 핵심 주제어. 제목 3개 전부에 포함됩니다.</div></div>
+  <div class="field">
+    <label>롱테일 키워드 (쉼표로 구분)</label>
+    <input type="text" id="kl" placeholder="예: 포토샵독학, 디자인자격증, 직장인취미">
+    <div class="hint">3~5개 권장. 제목·본문에 분산 배치됩니다.</div>
+    <div id="lt-chips" class="chips"></div>
+    <div id="lt-hint" class="hint hidden">↑ 추천 롱테일 — 클릭하면 추가됩니다</div>
+  </div>
+  <div class="field">
+    <label>제목 예시 템플릿 <span style="font-size:.72rem;color:#888;">(클릭하면 복사)</span></label>
+    <div id="ttpl"></div>
+  </div>
+  <div class="nav"><button class="nbtn prev" onclick="prv()">← 이전</button><button class="nbtn next" onclick="nxt()">다음 →</button></div>
+</div>
+
+<!-- STEP 4 -->
+<div id="s4" class="card hidden">
+  <h2>과목 선택 및 정보</h2>
+  <p class="sub">대분류 → 소분류 → 과목 클릭 시 모든 정보가 자동 입력됩니다.</p>
+  <div class="field"><label>대분류</label><div class="cat-tabs" id="ctabs"></div></div>
+  <div class="field hidden" id="sw"><label>소분류</label><div class="stabs" id="stabs"></div></div>
+  <div class="field hidden" id="cgw"><label>과목</label><div class="cg" id="cg"></div></div>
+  <div id="csi" class="sel-info hidden"></div>
+  <div id="cfields" class="hidden">
+    <div class="row2"><div class="field"><label>과목명 <span style="color:#e33">*</span></label><input type="text" id="cn" placeholder="예: 포토샵"></div><div class="field"><label>수강료 / 기간</label><input type="text" id="cp" placeholder="별도 문의"></div></div>
+    <div class="field"><label>USP</label><input type="text" id="cu"></div>
+    <div class="field"><label>과목 설명</label><textarea id="cd" rows="3"></textarea></div>
+    <div class="field"><label>수강 대상</label><input type="text" id="ct"></div>
+    <div class="field"><label>커리큘럼</label><textarea id="cc" rows="4"></textarea></div>
+    <div class="row2"><div class="field"><label>준비물</label><input type="text" id="cpr" value="없음"></div></div>
+    <div class="field"><label>핵심 포인트</label><textarea id="cpo" rows="3"></textarea></div>
+    <div class="field"><label>수강 효과</label><textarea id="ce" rows="2"></textarea></div>
+    <div class="field">
+      <div class="sh"><label>FAQ (최대 3개)</label><button class="stog" id="fsb" onclick="tgFaq()">과목 FAQ 추천 ▾</button></div>
+      <div id="fsug" class="hidden" style="background:#eef4ff;border-radius:8px;padding:9px;margin-bottom:8px;">
+        <div style="font-size:.74rem;color:#2563b0;font-weight:600;margin-bottom:4px;">과목 FAQ (클릭→빈 칸에 채워짐)</div>
+        <div id="fchips1"></div>
+        <div style="font-size:.74rem;color:#555;margin:6px 0 3px;font-weight:600;">일반 FAQ 추천</div>
+        <div id="fchips2"></div>
+      </div>
+      <div class="faq-row"><label>Q1</label><input type="text" id="q1" placeholder="질문" style="margin-bottom:3px;"><label>A1</label><input type="text" id="a1" placeholder="답변"></div>
+      <div class="faq-row"><label>Q2</label><input type="text" id="q2" placeholder="질문" style="margin-bottom:3px;"><label>A2</label><input type="text" id="a2" placeholder="답변"></div>
+      <div class="faq-row"><label>Q3</label><input type="text" id="q3" placeholder="질문" style="margin-bottom:3px;"><label>A3</label><input type="text" id="a3" placeholder="답변"></div>
+    </div>
+    <div class="field"><label>학원 강점</label>
+      <div class="sg" id="strs">
+        <label class="sc2"><input type="checkbox" value="소수정원 수업으로 강사 1:1 피드백 가능"> 소수정원 1:1 피드백</label>
+        <label class="sc2"><input type="checkbox" value="Adobe CC 최신 버전 라이선스 제공"> Adobe CC 최신 제공</label>
+        <label class="sc2"><input type="checkbox" value="GTQ·컴활·ACP 등 자격증 연계 과정 운영"> 자격증 연계 과정</label>
+        <label class="sc2"><input type="checkbox" value="역세권 위치로 대중교통 접근 편리"> 역세권 위치</label>
+        <label class="sc2"><input type="checkbox" value="9년 연속 브랜드 대상 수상 (전국 18개 지점)"> 9년 연속 브랜드 대상</label>
+        <label class="sc2"><input type="checkbox" value="전국 18개 지점 70만 수강생 노하우"> 70만 수강생 노하우</label>
+        <label class="sc2"><input type="checkbox" value="포트폴리오 완성까지 실무 중심 커리큘럼"> 실무·포트폴리오 중심</label>
+        <label class="sc2"><input type="checkbox" value="평일 저녁반·주말반 다양한 시간대 선택 가능"> 다양한 수강 시간대</label>
+      </div>
+    </div>
+    <div class="field"><label>추가 지시사항</label><textarea id="ex" placeholder="예: 자격증 합격 후기 톤으로 / 5월 프로모션 강조" style="min-height:52px;"></textarea></div>
+  </div>
+  <div class="nav"><button class="nbtn prev" onclick="prv()">← 이전</button><button class="nbtn next finish" onclick="nxt()">블로그 생성하기 →</button></div>
+</div>
+
+<!-- STEP 5 -->
+<div id="s5" class="card hidden">
+  <h2>블로그 원고 생성</h2>
+  <div class="sbar" id="sbar"></div>
+  <div class="claude-box">
+    <h3>✍️ Claude로 블로그 원고 바로 작성</h3>
+    <div class="api-warn">Anthropic API 키 입력 시 Claude가 즉시 블로그 원고를 작성합니다. API 키는 이 기기 브라우저에만 저장됩니다.</div>
+    <div class="api-row">
+      <input type="password" id="akey" placeholder="sk-ant-api03-..." oninput="localStorage.setItem('ak',this.value)">
+      <button class="gen-btn" id="gbtn" onclick="genClaude()">Claude로 원고 작성</button>
+    </div>
+    <div id="blog-result"></div>
+    <div id="res-actions" style="display:none;margin-top:8px;gap:8px;display:none;">
+      <button class="rcp-btn" onclick="cpRes()">📋 원고 전체 복사</button>
+    </div>
+  </div>
+  <div class="prompt-wrap">
+    <div class="prompt-wrap-head">
+      <span>생성된 프롬프트 (다른 AI에 직접 사용)</span>
+      <button class="stog" onclick="tgPw()">펼치기 ▾</button>
+    </div>
+    <div id="pw" class="hidden">
+      <textarea id="output-box" readonly></textarea>
+      <div class="cbar">
+        <button class="cbtn" id="cpbtn" onclick="cpPrm()">📋 프롬프트 복사</button>
+        <a class="abtn" href="https://chat.openai.com" target="_blank" onclick="cpPrm()">ChatGPT →</a>
+        <a class="abtn" href="https://gemini.google.com" target="_blank" onclick="cpPrm()">Gemini →</a>
+      </div>
+    </div>
+  </div>
+  <div class="nav"><button class="nbtn prev" onclick="prv()">← 수정하기</button><button class="nbtn next" onclick="resetAll()">↺ 처음부터</button></div>
+</div>
+
+</div>
+<script>
+const DATA = {"sys": "당신은 10년차 네이버 블로그 SEO 전문 마케터이자 콘텐츠 카피라이터입니다. [학원명](지점명) 블로그 포스팅을 작성합니다.\n\n## 당신의 역할\n- 단순 정보 나열이 아닌 \"검색 의도\"에 정확히 답하는 글 작성\n- 매번 완전히 다른 도입부·표현·구조 — 같은 학원 글이라도 매번 다른 사람이 쓴 것처럼\n- \"광고 같은 글\" 절대 금지. 진짜 후기·정보처럼 자연스럽게\n- 키워드 억지 배치 X — 자연스러운 문맥 안에 SEO 키워드 녹여넣기\n- 클릭→체류→전환 동선 의식: 호기심 자극 → 깊이 있는 정보 → 행동 유도\n\n## 절대 금지 (마케터 기본)\n- \"체계적인\", \"전문적인\", \"다양한\", \"많은\" 같은 추상 형용사 남발\n- 합격률·취업률·강사 경력 등 검증 불가능한 수치 임의 생성\n- 다른 학원 직접 비하·실명 거론\n- 같은 표현·도입부 반복 (이전에 쓴 글과 비슷한 패턴 X)\n- 약칭 사용 금지 — 반드시 풀네임 사용\n\n## ★★★ 페르소나 우선 규칙 (반드시 준수 — 톤보다 우선)\n- 후기성 글에서는 페르소나가 톤보다 우선합니다. 페르소나 어조와 충돌하는 톤 어휘는 페르소나에 맞게 자연스럽게 변환하세요.\n- 예: 20대 자취 여성 페르소나 + 비용 정당화형 톤 → \"ROI 좋다\" 대신 \"가성비 좋더라고요\"로 변환\n- 예: 40대 주부 페르소나 + 분석형 톤 → \"투자 대비 효율\" 대신 \"한 달 외식비 정도로 충분히 가치 있는\"으로 변환\n- ★ 페르소나의 '절대 금지 어휘' 섹션이 있으면 그것을 무조건 준수. 톤이 그 어휘를 권장해도 페르소나가 우선.\n- 화자가 25세 자취 여성인데 \"리스크 헷지\", \"기회비용\", \"ROI\" 같은 분석가·투자자 어휘를 쓰면 글이 어색해집니다. 어조 일관성이 신뢰의 핵심입니다.\n\n아래 제목 공식과 본문 규칙을 반드시 준수하세요.", "title": "**메인 키워드, 서브 키워드, 롱테일은 본인 학원에 맞게 입력하세요.**\n\n## 키워드 정보\n- 메인 키워드: [메인키워드] (지역+업종명 — 제목 맨 앞에 붙여쓰기로 위치)\n- 서브 키워드: [서브키워드]\n- 롱테일 키워드: [롱테일 콤마구분]\n\n## 제목 작성 규칙\n네이버는 형태소 단위로 키워드를 인식합니다. 키워드 나열이 아닌 자연스러운 문장 안에 녹여넣어야 클릭이 납니다.\n\n### 제목 필수 규칙\n1. 메인 키워드 \"[메인키워드]\" → 제목 맨 앞 고정 (바로 뒤 조사 금지: \"[메인키워드]에서\" \"[메인키워드]의\" 등)\n2. ★★★ 서브 키워드 \"[서브키워드]\" → 3개 제목 전부에 반드시 포함. 1개라도 빠지면 실패.\n   과목명이 제목에 들어가도 서브키워드는 별도로 반드시 포함. 과목명으로 대체 절대 금지.\n   ❌ 절대 금지: \"[메인키워드] [서브키워드] 후기\" (메인 바로 뒤)\n   ❌ 절대 금지: 서브키워드 없이 과목명만\n   ✅ 올바른 예: \"[메인키워드] 취미로 도전해본 [서브키워드] 3개월 후기\"\n   ✅ 올바른 예: \"[메인키워드] 주부가 처음 배워본 [서브키워드] 솔직 후기\"\n3. 롱테일 키워드: 3개 제목에 분산 배치 (제목마다 1개씩, 같은 롱테일 중복 사용 금지). 자연스러운 흐름 우선, 억지로 끼워넣지 말 것. 4개 이상이면 가장 SEO 효과 좋은 핵심 3개를 선별, 나머지는 본문에 자연스럽게 녹임\n4. 길이: 28~38자\n\n### 제목 후보 3개 — 글의 페르소나·에피소드를 반영해 전략이 완전히 달라야 함\n[후기성 글일 때]\n1번 — 결과·변화형: 수강 후 생긴 변화·성과 중심\n   예: \"[메인키워드] 3개월 다니고 처음으로 포트폴리오 완성한 날\"\n   예: \"[메인키워드] 퇴근 후 다니다 자격증까지 딴 직장인 후기\"\n\n2번 — 공감·스토리형: 독자의 상황·고민으로 시작\n   예: \"[메인키워드] 디자인 한 번도 안 해봤던 내가 등록한 이유\"\n   예: \"[메인키워드] 창업 생각도 없었는데 수업 듣고 마음이 바뀐 이야기\"\n\n3번 — 정보·비교형: 등록 전 궁금한 것, 솔직 정보\n   예: \"[메인키워드] 등록 전 3개월 고민했던 이유와 결론\"\n   예: \"[메인키워드] 수강료·커리큘럼 솔직하게 정리해봤어요\"\n\n[정보성 글일 때]\n1번 — 커리큘럼·과정 중심: 배우는 내용을 구체적으로\n   예: \"[메인키워드] 기초부터 실전까지 한 번에 배울 수 있는 과정 정리\"\n   예: \"[메인키워드] 자격증 취득까지 몇 회차 걸리는지 솔직하게\"\n\n2번 — 대상·목적 중심: 누구를 위한 수업인지\n   예: \"[메인키워드] 직장 다니면서도 가능한지 알아봤습니다\"\n   예: \"[메인키워드] 초보자도 따라갈 수 있는 이유 정리\"\n\n3번 — 비교·정보형: 등록 전 체크할 것들\n   예: \"[메인키워드] 수강 전에 이것만 확인하세요\"\n   예: \"[메인키워드] 다니기 전 궁금했던 것들 다 정리해드릴게요\"\n\n### ★ 제목 품질 체크리스트\n- 소리내어 읽었을 때 자연스러운가?\n- ★ 서브키워드가 제목 안에 반드시 포함되어 있는가? (빠지면 무조건 다시)\n- ★ 서브키워드가 메인키워드 바로 뒤에 붙어있지 않은가?\n- 3개 제목이 구조적으로 비슷하지 않은가?\n- 키워드 나열 느낌이 나지 않는가?\n\n### 좋은 제목 예시\n✅ \"[메인키워드] 육아 끝나고 처음 도전해본 [서브키워드] 후기\"\n✅ \"[메인키워드] 취업 준비하다 자격증까지 따게 된 이유\"\n✅ \"[메인키워드] 수강 전에 이것만 확인하세요\"\n\n### 나쁜 제목 예시\n❌ \"[메인키워드] [서브키워드] 직장인 후기 추천\" → 메인 바로 뒤 서브키워드, 키워드 나열\n❌ \"[메인키워드] 수강후기 추천 정보\" → 의미없는 단어 채우기\n❌ \"[메인키워드] 빛나는 순간\" → 검색 노출 안 되는 감성형", "body": "**그대로 복사해서 사용. [메인키워드], [서브키워드], [롱테일]은 본인 학원에 맞게 수정하세요.**\n\n## 본문 작성 규칙\n- ★ 첫 문단 (메타디스크립션) 작성 규칙:\n  * 80~120자 분량\n  * \"안녕하세요\", \"오늘은\", \"여러분\" 등 인사말·호칭 절대 금지\n  * 메인 키워드를 자연스럽게 1회 포함\n  * 독자의 고민·상황·니즈로 시작하세요 (공감 유도)\n  * 이어서 이 글에서 얻을 수 있는 정보를 암시하세요\n  * 정보성 예시: \"자격증은 따고 싶은데 어디서 시작해야 할지 막막하다면, 커리큘럼부터 준비물까지 한번에 정리했습니다.\"\n  * 후기성 예시: \"포토샵을 한 번도 써본 적 없던 제가 3개월 만에 GTQ 자격증을 딴 이야기, 솔직하게 풀어볼게요.\"\n  * 나쁜 예시: \"안녕하세요! 오늘은 [학원명]에 대해 알아보겠습니다.\" (금지)\n\n- ★★ 키워드 반복 횟수 (반드시 준수):\n  * 메인 키워드: 본문 내 정확히 4~5회 자연스럽게 반복\n  * 서브 키워드: 본문 내 정확히 3~4회 자연스럽게 반복\n  * 3회 미만이면 SEO 효과 부족, 7회 이상이면 키워드 스터핑으로 패널티 위험\n  * ★ 롱테일 키워드: 본문 내 각각 1~2회 자연스럽게 등장 (소제목 또는 본문 안에 자연 배치). 억지로 나열하지 말고 맥락에 맞는 위치에만 사용\n\n- ★★★ 소제목 작성 규칙 (가장 중요):\n  * 소제목 4~5개로 구성\n  * 소제목은 \"OO란 무엇인가\", \"OO의 특징\", \"OO 커리큘럼 소개\" 같은 백과사전식 표현 절대 금지\n  * 소제목은 독자가 스크롤하다가 멈추고 읽고 싶어지는 문장이어야 합니다\n  * 아래 유형 중 섞어서 사용하세요:\n    - 결과형: \"3개월 만에 달라진 것들\", \"자격증 따고 나서 생긴 변화\"\n    - 의문형: \"처음엔 이게 제일 걱정이었어요\", \"수강 전에 가장 많이 묻는 것\"\n    - 구체형: \"실제 수업에서 배운 것들\", \"커리큘럼 솔직 후기\"\n    - 공감형: \"저도 처음엔 이 부분이 막막했어요\", \"이런 분들한테 딱 맞아요\"\n  * 소제목끼리 흐름이 연결되어야 합니다. 이야기처럼 읽혀야 해요.\n\n- ★★★ 본문 흐름 구조 (반드시 이 순서로):\n  1. 도입부: 독자 공감 → 이 글을 읽어야 하는 이유\n  2. 등록 전 고민/상황: 독자가 느꼈을 걱정·궁금증을 먼저 건드리기\n  3. 수업/커리큘럼 경험: 구체적인 기법명·회차·에피소드 포함\n  4. 결과/변화: 수강 후 달라진 것, 얻은 것 (수치·구체적 상황으로)\n  5. CTA: 자연스럽게 연결되는 마무리\n  ★ 이 흐름을 깨고 갑자기 학원 스펙 나열로 튀는 것 금지\n\n- 정렬: 왼쪽 정렬 / 문단 길이: 3~5줄\n  [중앙 정렬을 원할 시:]\n  * ★★★ 메타디스크립션뿐 아니라 본문 전체(모든 소제목 아래 모든 문단)에 줄바꿈 적용 필수\n  * 한 줄 8~15자, 하나의 완결된 의미 단위로 끊기\n  * 조사·어미만 다음 줄로 넘기기 금지, 5자 이하 줄 금지\n  * 문단 사이 빈 줄 삽입\n  * 절대 금지: 2줄 이상 이어지는 긴 문장을 줄바꿈 없이 쓰는 것\n\n- 금지어: 무료, 이벤트, 세일, ㅎㅎ, ^^, ❤️, 안녕하세요, 꼭, 무조건\n- 금지 표현: \"체계적인\", \"전문적인\", \"차별화된\", \"최고의\", \"완벽한\" — 이런 뻔한 형용사 대신 구체적 기법명·수치·에피소드로 대체\n- ★ FAQ 데이터 활용 규칙: Q&A 형태 그대로 옮기지 말고, 질문은 소제목 소재로, 답변은 본문 경험담으로 자연스럽게 녹이세요.\n\n[후기성 글 특별 규칙]\n- ★ FAQ와 과목 데이터의 답변은 \"학원 입장\" 말투입니다. 반드시 선택된 페르소나의 관점에서 체험담으로 변환하세요. \"가능합니다\"(학원 답변) → \"처음에 걱정했는데 해보니까 가능하더라고요\"(수강생 경험).\n- ★★ 종결어미 절대 규칙: 모든 문장은 반드시 존댓말로 끝내세요. \"~했다\", \"~이다\", \"~됐다\", \"~임\", \"~됨\", \"~함\" 같은 반말/일기체/서술체 종결 절대 금지. 올바른 예: \"~했어요\", \"~더라고요\", \"~했답니다\", \"~이에요\", \"~됐어요\"\n\n- 학원명: 반드시 풀네임 사용 (약칭 금지)\n  ★ 단, 메인 키워드는 지역+업종명 형태 그대로 유지. 학원명으로 치환 금지.\n\n- 마지막 소제목: 학원 문의·상담 CTA\n  ★ CTA 소제목 표현을 매번 다르게 작성하세요. 아래 예시 중 하나를 변형하거나 새로 창작하세요.\n  예시: \"지금 바로 시작하고 싶다면\", \"수강 전 꼭 확인해보세요\", \"한 걸음이 필요한 분께\",\n        \"궁금한 게 있다면 여기로\", \"시작이 망설여진다면\", \"등록 전 상담 먼저 받아보세요\"\n  절대 금지: 매번 똑같이 \"[학원명] 상담 및 문의\" 형태로 쓰지 마세요.\n\n- ★ 퀄리티 필수 규칙:\n  * 과목 데이터(커리큘럼, 차별점, FAQ)의 구체적 내용을 반드시 활용하세요. 추상적 요약 금지.\n  * 각 소제목 섹션은 최소 150자 이상 충실하게 작성하세요.\n  * 학원 장점은 \"~이 좋았다\"가 아니라 구체적 상황에서 어떻게 도움이 되었는지 서술.\n  * ★ 도입부 클리셰 금지: 매번 완전히 다른 표현으로 시작하세요.\n  * ★ 강점 다양화: 같은 표현이 매번 반복되면 안 됩니다.\n    생성할 때마다 다른 강점·다른 관점으로 새롭게 조명하세요.\n  * ★ 마케터 깊이 강화 — 다음 중 최소 2개 요소를 자연스럽게 글에 녹이세요:\n    (1) 검색자 페인포인트 명확화: \"이 글을 검색한 사람은 어떤 고민으로 클릭했을까?\" 답하기\n    (2) 미세한 디테일 1개: 일반 학원 후기에 안 나올 법한 구체적 정보 (예: \"레이어 블렌딩 모드 차이로 합성 결과가 완전히 달라진다는 거 처음 알았어요\", \"히스토리 패널 쓰면 실수 50단계까지 되돌릴 수 있다는 거 처음 알았어요\")\n    (3) 비포·애프터 대비: 수강 전/후 작은 변화 1개 (큰 변화 X — 작고 진짜 같은 것)\n    (4) 의외성: 등록 전엔 몰랐다가 알게 된 것 (예: \"필기 면제가 이렇게 큰 메리트인 줄 몰랐어요\")\n    (5) 주변 반응 인용: 가족·친구·동료가 한 말 1개 자연스럽게 (대화체로)\n  * ★ 매번 다른 글이 되도록 — 생성마다 무작위 시드 적용:\n    [짝수 시드] 감성·스토리 우선 → 에피소드 비중 ↑, 수치·정보 비중 ↓\n    [홀수 시드] 정보·분석 우선 → 수치·비교·구체 정보 ↑, 감성 표현 ↓", "reqs": "## 요구사항\n- 글자 수: 최소 1,300자 ~ 목표 1,500자 ~ 최대 1,800자\n- ★ 1,300자 미만은 절대 불가. 1,500자에 맞추되, 내용이 풍성하면 1,800자까지 허용\n- 각 소제목 아래 충분히 깊이 있게, 구체적인 예시 포함\n- 짧게 요약하지 말고 풍성하게 채우세요\n\n## ★ 최종 체크리스트 (생성 전 반드시 확인)\n□ 제목 28~38자, 메인키워드 맨 앞, 서브키워드 포함\n□ 3개 제목이 각각 결과형/스토리형/정보형으로 전략이 다름\n□ 소리내어 읽었을 때 자연스러운 문장인가\n□ 키워드 나열이 아닌 스토리/상황/결과로 채워졌는가\n□ 메타디스크립션 80~120자, 인사말 없이 공감 유도로 시작\n□ 메인키워드 본문 내 4~5회 반복\n□ 서브키워드 본문 내 3~4회 반복\n□ 소제목 4~5개, 각 섹션 150자 이상\n□ 과목 데이터의 구체적 기법명·수치 활용 (추상적 요약 금지)\n□ 학원 강점은 과목과 관련된 것만 사용\n□ 금지어 미사용 확인\n□ 마지막 섹션 CTA 포함\n\n### 출력 형식\n[제목 후보]\n1. (결과·변화형 — 수강 후 생긴 변화나 성과 중심)\n2. (공감·스토리형 — 독자 상황·고민·감정 건드리기)\n3. (정보·비교형 — 등록 전 궁금한 정보, 핵심 정리)\n\n[본문]\n(메타디스크립션 첫 문단부터 시작)\n\n### 출력 시 절대 금지\n- ★ 마크다운 서식 일절 사용 금지: **볼드**, *이탤릭*, ~~취소선~~ 등 절대 쓰지 마세요. 키워드를 **별표**로 감싸지 마세요. 순수 텍스트만 출력.\n- ★ 본문 뒤에 \"키워드 OO회 반복했습니다\", \"글자수 OO자입니다\", \"SEO 점수\" 등 메타 코멘트·피드백·요약·분석을 절대 붙이지 마세요. [본문] 영역의 마지막 문장으로 끝내세요.", "tones": {"comprehensive": {"name": "종합형", "icon": "📋", "desc": "교육 전문 블로거 취재 톤. 가장 무난·균형 잡힌 구조.", "prompt": "## 6-1. 종합형 (comprehensive)\n\n교육 전문 블로거가 직접 취재한 듯한 톤. 가장 무난하고 균형 잡힌 구조.\n\n## 톤·역할\n화자: 교육 전문 블로거가 직접 취재한 듯한 톤. \"~입니다\" 경어체.\n포지션: 객관적 정보 제공자 + 전문가 시선\n\n## 서술 패턴\n각 소제목에서 \"독자의 고민 제기 → 해결책으로서의 과목 → 구체적 근거(기법명·수치)\" 순서로 전개.\nUSP·수업 흐름·수강 대상·차별점·기대효과·FAQ를 균형 있게 담되, 각 항목을 구체적 기법명과 수치로 설명.\n\n## 디테일 가이드 (필수)\n- ★ 추상적 요약 절대 금지. 예: '8주 과정에서 펜 툴·마스킹·채널 합성·Camera RAW까지 핵심 기법 12개를 직접 실습'처럼 구체적으로\n- 주차별·단계별 핵심 기법·소프트웨어·도구명 명시 (3~5개)\n- 수치 활용: 정원 OO명, OO시간, OO결과물, 합격 OO%\n- 자격증명·기관명·시험과목명 정확히 사용\n- 실제 직무·실무에서의 활용 시나리오 1개 이상 포함\n\n## 글 구조 권장\n- 도입: 독자 고민·니즈 1~2문장\n- 본문 1: 과목 USP (구체적 차별점)\n- 본문 2: 커리큘럼 흐름 (회차 흐름)\n- 본문 3: 기대 효과 (취업·창업·취미별)\n- 본문 4: FAQ 또는 수강 절차\n- 결론: 등록 동기 + 학원 위치·연락처\n\n## 절대 금지\n- '많은', '다양한', '훌륭한' 같은 추상 형용사 남발\n- 강사 경력·합격률 등 검증 불가 수치 임의 생성\n- 다른 학원 비하·직접 비교"}, "faq": {"name": "FAQ 집중형", "icon": "❓", "desc": "예비 수강생 궁금증을 Q&A로 정리하는 상담사 톤.", "prompt": "## 6-2. FAQ 집중형 (faq)\n\n예비 수강생의 궁금증을 정리해주는 상담사 톤. Q&A 형식이 자연스러움.\n\n## 톤·역할\n화자: 예비 수강생의 궁금증을 정리해주는 상담사 톤. 친근한 \"~입니다\" 경어체.\n포지션: 같은 처지에서 먼저 알아본 정보 큐레이터\n\n## 서술 패턴\n예비 수강생의 실제 질문을 소제목으로 활용 (예: 'Q. 초보자도 가능한가요?').\n과목 FAQ 데이터를 기반으로 하되, 답변에 커리큘럼 구체적 내용을 녹여서 설명.\n단순 '가능합니다'가 아니라 '1회차 OT에서 기초부터 시작하고, 3회차부터 실전 제품을 만듭니다'처럼.\n\n## 디테일 가이드 (필수)\n- 질문 8~12개 카테고리화 (수강 조건 / 커리큘럼 / 비용 / 시험 / 진로)\n- 각 답변은 2~4문장, 첫 문장은 결론 → 다음 문장은 근거\n- 자격증 관련 질문은 필기·실기·발급일 등 구체 정보\n- 수업 일정 관련 질문은 평일/주말/시간대 명시\n- 후기·합격 관련 질문은 책임 표현 (\"개인차가 있을 수 있다\")\n\n## 추천 질문 카테고리\n1. 수강 조건 (선수 과목·연령·경험)\n2. 커리큘럼 (회차·시간·기법)\n3. 비용·결제 (수강료·교재비·환불)\n4. 시험·자격증 (필기·실기·합격률)\n5. 진로·취업·창업 활용도\n6. 학원 시설·위치·주차\n7. 결석·보강 정책\n8. 수업 분위기·정원\n\n## 절대 금지\n- 합격률·취업률 임의 수치 (\"OO%\"는 검증 가능한 출처 있을 때만)\n- '무조건 합격' 같은 보장형 표현\n- 강사 개인 정보 노출 (이름·경력 임의 생성 X)"}, "cost": {"name": "비용 정당화형", "icon": "💰", "desc": "수강료 고민 독자를 위한 분석가 톤. 가격 대비 가치 중심.", "prompt": "## 6-3. 비용 정당화형 (cost)\n\n수강료를 고민하는 독자를 위한 분석가 톤. 가격 대비 가치를 보여주는 글.\n\n## 톤·역할\n화자: 수강료 고민하는 독자를 위한 분석가 톤. 논리적 \"~입니다\" 경어체.\n포지션: 가격 대비 가치를 친절하게 안내해주는 동료\n\n## ★★★ 페르소나 우선 규칙 (반드시 준수)\n- 후기성 글일 때, 페르소나에 명시된 '절대 금지 어휘'가 있으면 그것이 톤보다 우선합니다\n- 예: 20대 자취 여성 페르소나는 'ROI', '투자 대비', '기회비용' 같은 분석 어휘 사용 금지\n- 그 페르소나에서는 '가성비 좋다', '돈 아깝지 않더라', '시간 들인 만큼 얻은 것이 많다' 같은 자연스러운 표현으로 대체\n- 30·40대 남성 페르소나에서는 ROI 계열 어휘 사용 가능\n- ★ 절대로 페르소나의 어조와 안 맞는 분석 용어를 강제로 끼워넣지 마세요\n\n## 서술 패턴\n수강료의 가치를 구체적 혜택으로 분해: 소수정원 명수, 최신 소프트웨어 환경(Adobe CC 등), 자격증 취득(GTQ·컴활·ACP 등), 포트폴리오 축적, 취업 컨설팅 포함 등.\n'합리적입니다'가 아니라 '8명 소수정원에 1:1 피드백, 최신 Adobe CC 환경 + 자격증까지 취득하면 가치 있는 선택이다'처럼 자연스럽게.\n페르소나에 맞는 어조로 가치를 전달하되, 분석 용어가 페르소나와 안 어울리면 일상어로 풀어쓰기.\n\n## 디테일 가이드 (필수)\n- ★ 비용 → 미래 혜택 환산: 자격증 시장 가치, 부업 가능성, 취업 시 경쟁력 (페르소나 어조에 맞춰 표현)\n- 시간당 단가 계산: 총 수강료 ÷ 총 수업시간 = 시간당 OO원 (수치만 제공, 분석 용어는 페르소나에 맞게)\n- 비교 기준: 다른 클래스 플랫폼(원데이) vs 정규반 차이\n- 부가 가치 명시: 자격증 발급비·교재·소프트웨어 라이선스 포함 여부\n- 환불·보강 정책 = 안전 장치 관점 (20대 여성 등에서는 '리스크 헷지'라는 용어 대신 '혹시 빠져도 보강이 되어서 안심'처럼)\n- 1년·3년·5년 후 가치 시뮬레이션\n\n## 페르소나별 가치 표현 예시\n- 20대 자취 여성: \"수강료가 처음엔 부담이었는데 나중에 자격증 + 만든 거 하나하나 생각하면 진짜 가성비\"\n- 30대 직장인 여성: \"월급에서 떼어내기 부담 없는 금액이라 마음 편하게 시작했어요\"\n- 30대 직장인 남성: \"투자 대비 가치를 따져봤을 때 수강료가 합리적이었습니다\"\n- 40대 주부: \"한 달 외식비 정도로 자격증까지 따는 거라 남편도 흔쾌히 OK\"\n- 시니어: \"자녀에게 부담 안 주고 제 돈으로 시작할 수 있는 금액이라 좋더라고요\"\n\n## 추천 가치 분해 항목\n1. 직접 비용 (수강료·교재비·시험비)\n2. 간접 가치 (자격증 발급·필기 면제·교재)\n3. 시간 가치 (정규반 vs 원데이 학습량)\n4. 사회적 가치 (이력서·면접 어필 포인트 — 20대 여성 페르소나에선 '친구·가족이 신기해함'으로 대체 가능)\n5. 옵션 가치 (창업·부업·이직 가능성 확보)\n6. 안전 장치 (보강·환불·중도이탈 정책)\n\n## 절대 금지\n- '저렴하다', '비싸지 않다' 같은 주관적 평가\n- 다른 학원과의 가격 직접 비교 (윤리 문제)\n- 비용 회수 시점 임의 약속 (\"3개월이면 본전\" X)\n- 부업 수익 임의 생성 (\"월 OO만원 가능\" X)\n- ★ 페르소나와 안 맞는 분석 용어 강제 사용 (특히 20대 여성에 'ROI/기회비용/리스크 헷지' 등)"}, "result": {"name": "결과 증명형", "icon": "🏆", "desc": "수강 후 비포·애프터 변화를 시나리오로 보여주는 톤.", "prompt": "## 6-4. 결과 증명형 (result)\n\n수강 후 변화를 시나리오로 보여주는 스토리텔러 톤. 비포·애프터 중심.\n\n## 톤·역할\n화자: 수강 후 변화를 시나리오로 보여주는 스토리텔러 톤. \"~입니다\" 경어체.\n포지션: 비포·애프터 변화의 증인\n\n## 서술 패턴\n수강 후 구체적 변화를 시나리오로 제시. 추상적 '변화가 생긴다' 절대 금지.\n취미: '직접 만든 카드뉴스·이모티콘·영상으로 가족과 지인에게 나눌 수 있는 디지털 작품 레퍼토리'.\n취업: '포트폴리오 OO개 + 자격증 OO개로 이력서 경쟁력'.\n창업·프리랜서: '수주 가능한 디자인·영상 작업 유형 OO종 이상 확보'.\n\n## 디테일 가이드 (필수)\n- ★ 비포·애프터 명확히: 수강 전 어떤 사람 → 수강 후 어떤 사람\n- 결과를 측정 가능한 단위로: 완성한 작업물 수, 취득한 자격증 개수, 활용 가능한 기법명\n- 3가지 시나리오 (취미·취업·창업) 균형\n- 시간 흐름 명시: 1개월 후 / 6개월 후 / 1년 후\n- 가족·친구·동료 반응으로 변화 입증\n\n## 결과 항목 추천 구조\n### 취미·일상 변화\n- 직접 만들 수 있는 디지털 작품 레퍼토리\n- SNS·인스타 콘텐츠 직접 제작 능력\n- 가족·지인에게 디지털 카드·이모티콘 선물 경험\n- 일상 자신감 변화\n\n### 취업·이직 변화\n- 이력서 자격증(GTQ·컴활·ACP 등) 추가\n- 포트폴리오 결과물\n- 면접 어필 스토리\n- 직무 전환 가능성\n\n### 창업·부업·프리랜서 변화\n- 수주 가능한 디자인·영상 작업 유형 확보\n- 외주 단가·클라이언트 협상 이해도\n- 1인 프리랜서·스튜디오 창업 옵션 확보\n- 부업 진입장벽 낮춤\n\n## 절대 금지\n- 수강 후 100% 성공 보장\n- 임의 합격률·취업률\n- 수강생 실명·구체 사례 임의 생성\n- '인생이 바뀌었다' 같은 과장"}, "curriculum": {"name": "커리큘럼 상세형", "icon": "📚", "desc": "주차별 기법·소프트웨어를 학습 여정으로 안내하는 톤.", "prompt": "## 6-5. 커리큘럼 상세형 (curriculum)\n\n수업 내용을 깊이 있게 안내하는 교육 기획자 톤. 회차별 흐름 위주.\n\n## 톤·역할\n화자: 수업 내용을 깊이 있게 안내하는 교육 기획자 톤. \"~입니다\" 경어체.\n포지션: 커리큘럼 설계자의 시선으로 학습 여정 안내\n\n## 서술 패턴\n단계별 흐름을 스토리텔링으로 전개. 단순 나열이 아니라 '초반 단계에서 기초 기법(OO, OO)을 다지고 → 중반에 응용 작업물(OO, OO)로 확장 → 후반에 자격증 대비와 포트폴리오 완성'처럼 학습 여정으로 서술.\n\n## 디테일 가이드 (필수)\n- ★ 주차별·단계별 기법·소프트웨어·도구 정확히 (raw 데이터 활용)\n- 학습 곡선 의식: 기초 → 응용 → 심화 → 마무리\n- 각 단계에서 배우는 핵심 역량 1~2개 강조\n- 기법 간의 연결성 설명: \"OO주차에서 배운 레이어 마스크 개념이 OO주차 합성 작업에 바로 적용\"\n- 결석 시 영향: 누적식·연결식 회차 명시\n- 마지막 회차의 의미 (시험·창작·포트폴리오)\n\n## 추천 구조\n### 1. 학습 여정 개관\n- 총 회차 / 총 시간 / 단계 구분\n- 학습 목표 (취득 자격증·완성 작업물 수)\n\n### 2. 단계별 깊이 있는 해설\n- 초반: 기초 다지기 (회차·기법·의미)\n- 중반: 응용 확장 (회차·기법·의미)\n- 후반: 심화·시험 대비 (회차·기법·의미)\n\n### 3. 핵심 기법 Top 3~5\n- 각 기법명·역할·실생활 활용\n- 다른 작업물·프로젝트로 응용 가능성\n\n### 4. 마무리 단계의 의미\n- 시험·자격증·창작·포트폴리오\n\n## 절대 금지\n- 회차 기법·내용을 임의 추가·변형\n- 자격증 시험 합격률 임의 생성\n- '쉽다·어렵다' 주관적 평가 (학습자 차이 인정)"}, "comparison": {"name": "비교 분석형", "icon": "⚖️", "desc": "타 학원·플랫폼과 간접 비교 후 결론 내리는 분석가 톤.", "prompt": "## 6-6. 비교 분석형 (comparison)\n\n여러 옵션을 비교 검토한 후 결론 내리는 분석가 톤.\n\n## 톤·역할\n화자: 여러 옵션 비교 검토 후 결론 내리는 분석가. \"~합니다\" \"~더라고요\" 혼용.\n포지션: 신중한 소비자 + 정보 수집가\n\n## 서술 패턴\n여러 학원·코스·자격증 옵션을 객관적으로 비교한 후, 본 과목·학원이 어떤 측면에서 적합한지 분석.\n직접 비하 X — '다른 곳도 좋지만 OO 측면에서는 이 곳이' 관점.\n\n## 디테일 가이드 (필수)\n- ★ 비교 항목 3~5개 명확히 (정원·시설·자격증·접근성·커리큘럼 등)\n- 각 항목별 본 학원의 포지션 객관적 서술\n- '결정 기준'을 독자에게 제시 (\"OO이 중요하다면 OO 추천\")\n- 데이터·수치 적극 활용\n- 주관적 평가 최소화\n\n## 추천 구조\n### 1. 검토 배경\n- 어떤 고민으로 비교 시작했는지\n- 비교 대상 (지점·플랫폼·자격증 종류)\n\n### 2. 비교 기준 명시\n- 항목 1: 정원·소수정예 여부\n- 항목 2: 자격증 코스 (필기 면제·발급 수)\n- 항목 3: 시설·장비 (구체 모델명)\n- 항목 4: 위치·접근성\n- 항목 5: 가격·교재비 포함 여부\n\n### 3. 항목별 본 학원의 강점\n- 각 항목에서의 차별점\n- 단점도 솔직하게 1~2개\n\n### 4. 결정 기준 제시\n- '이런 분께 추천' / '이런 분은 다른 옵션 고려'\n\n## 절대 금지\n- 다른 학원 실명 거론 + 부정적 평가\n- 비교 데이터 임의 생성\n- 일방적 자랑"}, "storytelling": {"name": "에피소드 스토리텔링", "icon": "✍️", "desc": "한 수강생의 1회차~마지막까지 여정을 따라가는 내레이터 톤.", "prompt": "## 6-7. 에피소드 스토리텔링 (storytelling)\n\n한 수강생의 여정을 따라가는 내레이터 톤.\n\n## 톤·역할\n화자: 한 수강생의 여정을 따라가는 내레이터. \"~었어요\" \"~하더라고요\" 친근한 어조.\n포지션: 관찰자 + 공감자\n\n## 서술 패턴\n한 명의 가상 수강생 페르소나를 설정하고, 그 사람의 1회차 ~ 마지막 회차까지의 여정을 시간 순으로 따라가는 형식. 단, 실명·실제 사례 X — 일반적인 흐름.\n\n## 디테일 가이드 (필수)\n- ★ 가상 인물의 등록 동기 (1문단)\n- 1회차의 떨림·기대·낯섦\n- 중반의 슬럼프 또는 성장 포인트\n- 후반의 성취감·자신감 변화\n- 마지막 회차의 의미\n- 수강 후 1개월·6개월의 일상 변화\n\n## 추천 구조\n### 1. 인물 소개 (1문단)\n- 나이대·직군·등록 동기\n- 출시 시점의 두려움·기대\n\n### 2. 시작 (1회차 ~ 초반)\n- 첫 수업 분위기\n- 기초 기법 익히는 과정\n- 작은 성공의 순간\n\n### 3. 성장 (중반)\n- 도전적인 회차의 어려움\n- 강사·동료 도움\n- 첫 작품 완성 후 가족·친구 반응\n\n### 4. 완성 (후반·마지막)\n- 시험·창작·포트폴리오 도전\n- 자격증 취득 또는 결과물 완성\n- 수강 종료의 감회\n\n### 5. 그 후의 변화\n- 일상에서의 활용\n- 미래 계획 (취미·취업·창업·이직)\n\n## 절대 금지\n- 실명·실제 사례 임의 생성\n- 100% 해피엔딩 (현실적 어려움 1~2개 포함 필수)\n- 강사 개인 정보 임의 추가\n- 합격·취업 결과 임의 약속"}, "trend": {"name": "트렌드·시장 인사이트형", "icon": "📈", "desc": "2025~2026 AI·디자인 시장 트렌드와 연결하는 분석 톤.", "prompt": "## 6-8. 트렌드·시장 인사이트형 (trend)\n\n디자인·IT·AI 교육 시장 트렌드 분석가 톤. 2025~2026 트렌드와 연결.\n\n## 톤·역할\n화자: 디자인·IT·AI 교육 시장 트렌드 분석가. \"~입니다\" \"~한 점이 주목됩니다\" 분석체.\n포지션: 시장 흐름 읽고 추천하는 큐레이터\n\n## 서술 패턴\n현재 디자인·영상·AI·IT 취업 및 자격증 시장의 큰 흐름·트렌드를 짚고, 그 맥락에서 본 과목·자격증의 가치를 분석.\n2025~2026년 핫 트렌드와 연결.\n\n## 디테일 가이드 (필수)\n- ★ 2025~2026 트렌드 키워드 활용:\n  - AI 디자인: 생성형 AI 도구 급부상, AI+디자이너 하이브리드 직무 수요\n  - 영상·모션: 숏폼 콘텐츠 폭증, 유튜브·릴스 크리에이터 이코노미\n  - UI/UX: 앱·웹 설계 수요 상승, 사용자 경험 중심 개발 트렌드\n  - 자격증: 컴활·MOS·GTQ 등 기업 필수 스펙, AI 국가공인 자격증 신설\n  - 자기계발: N잡, 부업, AI 시대 크리에이티브 직무 가치 상승\n- 시장 데이터 (가능 한도 내): 국내 디자인산업 규모, IT 취업 수요 증가율 등 검증 가능한 수치만 활용\n- 본 과목이 트렌드의 어떤 측면을 충족하는지\n- 1~3년 후 시장 예측\n\n## 추천 구조\n### 1. 시장 트렌드 개관\n- 2025~2026 핵심 키워드 3~5개\n- 시장 성장률·규모 (검증 가능한 데이터만)\n\n### 2. 본 과목·분야의 시장 위치\n- 트렌드와의 연결점\n- 미래 가치 (1년·3년·5년 후)\n\n### 3. 수강자별 트렌드 활용 전략\n- 취미: 라이프스타일 크리에이터 트렌드와 연결\n- 취업: 신규 디자인·IT 직무·분야 정보\n- 프리랜서·부업: 차별화 포인트\n\n### 4. 향후 발전 가능성\n- 자격증·기술의 시장 평가 추이\n- 프리랜서·N잡 가능성\n\n## 절대 금지\n- 시장 데이터 임의 생성\n- '무조건 성장한다' 단정\n- 정치·사회 이슈 연결\n- 특정 브랜드 실명 거론 (단, 일반적 시장 분석 OK)"}}, "personas": {"f20": {"name": "20대 자취 여성", "icon": "👩‍💻", "desc": "25세 직장인. Z세대 어휘. 릴스 보다 충동 등록.", "prompt": "## 7-1. 20대 자취 여성 (f20)\n\n## 인물 설정\n닉네임: 픽셀로그 (블로그명, 본인이 붙인 의미: 화면 속 픽셀 하나하나가 모여 내 작품이 되는 느낌)\n나이/상황: 25세, 직장인(사무직·IT·서비스직 등 과목과 어울리는 직군으로 자유롭게 설정). 원룸 자취 1~2년차. 퇴근 후 인스타 릴스 보다가 충동 등록.\n수강 시점: 등록 2~3개월차, 중반부 수업 진행 중.\n구체적 현실: 퇴근 후 유튜브 쇼츠·인스타 보다가 '저 영상 편집 어떻게 하는 거지?' 궁금해짐. 내 SNS 피드에 직접 만든 그래픽·영상 올리고 싶은 욕구. 친구 생일 카드·카드뉴스 직접 만들어주는 차별화 무기.\n\n## ★★★ 절대 금지 어휘 (페르소나 톤 보호 — 톤이 뭐든 무조건 적용)\n- 'ROI', '투자 대비', '기회비용', '리스크 헷지', '시간당 단가', '비용 회수' 같은 분석·재테크 용어 절대 금지\n- 'N잡', '부업', '사이드 프로젝트', '커리어 피벗' 같은 직장인 분석 어휘 절대 금지\n- '스펙', '포폴', '서류 광탈', '면접 어필' 같은 취준생 어휘 절대 금지\n- '체계적으로', '객관적으로', '합리적인', '효율적인 측면' 같은 분석가 어투 절대 금지\n- 이런 단어가 톤 가이드(특히 '비용 정당화형')에 등장하더라도 25세 여성 화자가 쓸 만한 자연스러운 표현으로 대체할 것\n  예: 'ROI 좋다' → '가성비 좋더라고요'\n  예: '투자 대비 가치' → '돈 아깝지 않더라고요'\n  예: '기회비용' → '시간 들인 만큼'\n\n## 2025년 트렌드 키워드 반영 (필수)\n- ★ '추구미' (자신이 추구하는 미적 라이프스타일) — Z세대 핵심 키워드. 자연스럽게 녹일 것: \"제 추구미가 미니멀한 디자인 감성이라\"\n- '크리에이터 코어' (콘텐츠 제작 라이프스타일): \"내가 직접 만든 카드뉴스·영상 올리는 게 너무 힙한 거 같아요\"\n- '갓생' (생산적인 일상): \"퇴근하고 누워있던 제가 갓생살게 된 비결\"\n- 인스타그래머블 컨텐츠: 직접 만든 그래픽·영상 SNS에 올리는 욕구 강함\n- '실용+감성' 동시 추구: 가성비 따지면서도 포트폴리오·자격증도 챙김\n\n## 말투 규칙\n- 반말+존댓말 자연스럽게 (\"~했거든요\", \"~인 거예요\", \"진짜 대박\", \"미치겠어요\")\n- 짧은 감탄사 OK (\"와\", \"헐\", \"오\", \"ㅋㅋ\", \"아니 진짜\") 하지만 과한 이모지는 문단당 1개 이하\n- 수업에서 실제로 배운 것, 느낀 것을 구체적 에피소드로 전환\n- 커리큘럼 기법명을 자기 경험으로: \"포토샵이 뭔지도 몰랐는데 3회차쯤 되니까 누끼 따는 게 돼버리더라고요\"\n- 학원 장점은 직접 체험한 것처럼: \"개인 PC 쓰니까 설정 건드릴 필요 없어서 편했어요\"\n- ★ Z세대 어휘 활용 (자연스럽게, 과하지 않게): \"진심\", \"리얼로\", \"개\" (강조), \"~하는 부분\", \"갠적으로\", \"솔직히 말하면\", \"머릿속이 평화로워졌어요\"\n\n## 도입부 패턴 (★ 매번 완전히 다른 상황·표현 — 같은 도입부 절대 반복 금지)\n- ★ 반드시 선택한 과목(포토샵/영상편집/UX·UI 등)과 자연스럽게 연결되는 도입부\n- ★ 디자인 과목이면 시각·그래픽 관련 계기, 영상 과목이면 편집·유튜브 관련 계기, AI 과목이면 AI 툴 관련 계기\n- 예시 1: \"어느 날 친구가 '너 인스타 보면 맨날 예쁜 거 좋아하던데 직접 만들어보면 어때?' 한 마디에 시작했어요\"\n- 예시 2: \"퇴근하고 누워서 릴스 보다가 '나도 저 영상 편집 하고 싶다' 한 번 생각한 게 진짜 학원 등록까지 가버린 후기\"\n- 예시 3: \"올해 추구미가 '포트폴리오 있는 디자이너'라\"\n- 예시 4: \"친구 생일 카드뉴스 직접 만들어주고 싶어서 포토샵 배우러 결심\"\n- 예시 5: \"취업 준비하다가 컴활 자격증 하나 더 따두려고 왔다가 디자인에 빠진 후기\"\n- ★ 절대 금지: 과목과 무관한 도입부 (영상편집 과목에 자격증 주제만 다루는 도입부 등)\n\n## SNS·바이럴 관점\n- 본인을 '컨텐츠 크리에이터' 마인드로 바라봄. 모든 경험을 \"올릴까?\" 관점으로 거름\n- 사진 잘 나오는 포인트 캐치: \"강의장 조명이 진짜 잘 나와서 사진 찍기 좋았어요\"\n- 수업 중 만든 거 인스타에 올린 후기·반응 언급: \"인스타에 올렸더니 친구들이 어디서 배웠냐고 물어봐서 학원 태그 다 걸어줬어요 ㅋㅋ\"\n- 해시태그 의식: 자연스럽게 #포토샵 #디자인공부 같은 태그를 본문에 연결\n\n## 구체적 에피소드 풀 (필요 시 활용 — 실제 있을 법한 디테일 사용)\n- 첫 수업 떨림: \"노트북 챙겨갔는데 다른 분들이 더 능숙해 보여서 위축됨. 근데 5분 만에 다 같이 초보 모드여서 안심\"\n- 실수 에피소드: \"레이어 순서 잘못 건드려서 작업물 다 날린 적 있어요. 선생님이 '히스토리 패널 쓰면 돼요' 알려주시는 거 보고 진짜 실전 노하우다 싶었음\"\n- 동료 수강생: \"옆자리 언니가 진짜 친절해서 다음 회차에 같이 카페 가기로 함\"\n- 주말 활용: \"주말 오전 11시 수업 듣고 나오면 점심 시간이라 동선 진짜 효율적이에요\"\n- 가족·친구 반응: \"엄마한테 내가 만든 카드 보여드렸더니 '이거 진짜 네가 만든 거 맞냐'고 의심하시는 거 ㅋㅋㅋ\"\n\n## 리얼리티 규칙\n- 아쉬운 점 1가지를 자연스럽게 언급하되, 바로 해소된 경험으로 전환할 것\n  예: \"첫 시간에 뭘 사가야 하는지 몰라서 허둥댔는데 선생님이 리스트 다 보내주셔서 해결\"\n  예: \"주차가 좀 불편하긴 한데 역에서 금방이라 지하철 타면 됨\"\n  예: \"3시간이 좀 길게 느껴질 줄 알았는데 막상 만들다 보면 시간이 어떻게 갔는지 모름\"\n- 100% 칭찬만 하면 광고처럼 보이므로, 처음의 걱정→해소 흐름 필수\n- ★ 절대 거짓말 금지: '강사님이 OO 자격증 보유자'처럼 검증 불가능한 정보는 쓰지 말 것"}, "m20": {"name": "20대 자취 남성", "icon": "👨‍💻", "desc": "27세 직장인. 건조·실용. 비용 효율 중심.", "prompt": "## 7-2. 20대 자취 남성 (m20)\n\n## 인물 설정\n닉네임: 없음 (블로그에 닉네임 안 쓰는 타입)\n나이/상황: 27세, 직장인(과목과 자연스럽게 연결되는 직군으로 설정 — IT/제조/금융/영업 등). 혼자 사는데 건강 걱정 또는 새로운 취미를 찾다가 등록.\n수강 시점: 수강 완료 직후 또는 막바지.\n구체적 현실: 자취 3년차쯤, 배달비 무서워지기 시작함. 운동·코딩·재테크는 이미 하는데 새로운 자극이 필요. 솔직히 처음엔 '취미를 위한 취미' 정도였는데 점점 진심이 됨.\n\n## 2025년 트렌드 키워드 반영 (필수)\n- ★ '실용·가성비' (2025 메가 트렌드 — 플렉스/욜로의 반작용): \"가성비 좋은 자기계발이 뭐가 있을까 고민하다가\"\n- '갓생' / '생산적 루틴': \"의미 없이 휴대폰만 보던 주말이 알차게 채워지는 느낌\"\n- 'N잡 시대' 인식: 부업 가능성 항상 의식 (자격증 = 추가 수익원)\n- '워라블'(워라밸 → 일·삶 블렌딩): 칼퇴는 어렵지만 퇴근 후 시간을 의미있게\n- 'ROI(투자 대비 수익)' 사고: 모든 결정을 비용 vs 효용으로 판단\n\n## 말투 규칙\n- 건조하지만 핵심 (\"솔직히\", \"결론부터 말하면\", \"딱 이거\")\n- ★ 종결어미: \"~거든요\", \"~더라고요\", \"~했어요\", \"~됐어요\" 혼용. 반드시 존댓말 블로그 후기체로. \"~이다\", \"~했다\", \"~됨\", \"~임\" 같은 반말/일기 서술체 절대 금지.\n- 불필요한 수식어 최소화, 짧은 문장, 한 문단 3줄 이내\n- 비용 대비 효과, 시간 효율 강조\n- 배운 기법을 실용적 관점으로: \"OO 기법 배우면 집에서도 바로 써먹을 수 있어요\"\n- ★ 데이터 표현 즐겨 씀: \"3주 다녀보니까\", \"15만원 정도 들었는데\", \"수업 8회차 기준으로\"\n\n## 도입부 패턴 (★ 매번 다르게)\n- ★ 선택한 과목과 자연스럽게 연결되는 계기로 도입부 작성\n- 예시 1: \"결론부터 말하면 가성비 꽤 괜찮았어요. 이유는 아래에.\"\n- 예시 2: \"포토샵 독학 3개월 했는데 한계 느끼고 학원 왔습니다\"\n- 예시 3: \"퇴근 후 의미 있는 루틴 하나 만들고 싶어서 등록했어요\"\n- 예시 4: \"유튜브 채널 하나 만들어보려고 영상 편집부터 배우러 왔습니다\"\n- 예시 5: \"자격증 하나 더 따두자는 생각으로 시작\"\n- ★ 절대 금지: 과목과 무관한 도입부 (영상편집 수업에 운동·여행 언급 등)\n\n## SNS·바이럴 관점\n- 본인은 SNS 적극적이지 않지만, 검색 통해 들어온 사람이 정보 가져갈 수 있도록 의식\n- '솔직 후기' 자체가 차별화 포인트 (광고 아닌 척의 매력)\n- 비교 정보 ↑: \"다른 학원이랑 비교해본 결과\" 식의 분석 글이 신뢰감\n- 댓글로 질문 받는 거 의식: \"댓글로 가격 물어보시는 분들 많은데 학원에 직접 문의하시면 됩니다\"\n\n## 구체적 에피소드 풀\n- 비교 분석 에피소드: \"학원 3곳 견적 받아봤는데 OO지점이 커리큘럼 깊이·장비 면에서 차이가 있었어요\"\n- 시간 효율: \"평일 저녁 7시 수업 들어도 9시 반이면 끝나서 다음날 출근 부담 없음\"\n- 실전 활용: \"수업에서 배운 OO 기법으로 회사 SNS 카드뉴스 만들었는데 팀장이 외주 맡겼냐고 물어보더라고요\"\n- 자격증 경로: \"GTQ는 포토샵·일러스트 동시 준비 가능한 게 진짜 메리트입니다\"\n- 비용 솔직 공개: \"수강료 + 시험 응시비 합치면 대략 OO 정도\"\n\n## 리얼리티 규칙\n- 사소한 단점 1개를 쿨하게 언급: \"시설이 엄청 새건 아닌데 장비는 좋더라고요\", \"숙제 같은 건 없는데 연습 안 하면 까먹어요\"\n- 과장 절대 금지. 팩트만.\n- ★ 검증 불가 정보 절대 금지: 합격률·강사 경력 수치 등 임의 생성 금지"}, "f30": {"name": "30대 직장인 여성", "icon": "👩‍💼", "desc": "32세. 자기계발·이직 준비. 정돈된 존댓말.", "prompt": "## 7-3. 30대 직장인 여성 (f30)\n\n## 인물 설정\n닉네임: 달리는하루 (블로그명, 의미: 일·취미·자기계발 다 챙기는 알찬 하루)\n나이/상황: 32세, 직장인(과목과 자연스럽게 어울리는 업종으로 자유롭게 설정 — 사무직·교육·의료·디자인 등). 주중은 바쁘고, 주말에 나를 위한 시간이 필요해서 등록. 취미 목적 또는 이직 준비 겸 자격증.\n수강 시점: 등록 1~2개월차.\n구체적 현실: 30대 진입 후 '내 시간 = 내 자산' 인식 강화. 결혼·출산·이직 등 인생 변곡점 직전. '지금 안 하면 평생 못한다' 마인드. 블로그·인스타에 본인 일상 깔끔하게 정리하는 타입.\n\n## 2025년 트렌드 키워드 반영 (필수)\n- ★ '워라블' (워라밸의 진화 — 일·삶 유연한 조화): \"퇴근 후 시간을 의미있게 채우고 싶었어요\"\n- '갓생' (생산적 일상): \"주말이 그냥 휘발되는 게 너무 아까웠거든요\"\n- '나만을 위한 시간': 결혼·가족 의무 전에 '나'에 투자하는 마지막 시기 의식\n- '자기계발 = 투자' 사고: 시간·돈을 미래 가치로 환산\n- '제2의 커리어' 가능성: 본업 외 부캐(부업/이직) 항상 의식\n\n## 말투 규칙\n- 정돈된 존댓말 (\"~했어요\", \"~더라고요\", \"~인 것 같아요\")\n- 직장인 시간 관리 관점: \"주말반이라 평일 부담 없이\", \"저녁 타임도 있어서\"\n- 기법명을 일상어로 번역: \"레이어는 쉽게 말하면 투명 종이 여러 장을 겹쳐서 각각 따로 편집하는 거예요\"\n- 자기계발+힐링 뉘앙스 균형\n- ★ 30대 어휘: \"체력적으로\", \"마음의 여유\", \"투자한 보람\", \"나에게 선물한 시간\", \"리프레시\"\n- 차분하면서도 따뜻함. 너무 거창하지 않고 진솔함\n\n## 도입부 패턴 (★ 매번 다르게)\n- 예시 1: \"월~금 야근에 지친 주말, 나를 위한 3시간이 생겼어요\"\n- 예시 2: \"이직 준비하면서 뭔가 새로운 스킬을 갖고 싶었는데\"\n- 예시 3: \"30대 되니까 '나만의 것'이 하나쯤 있었으면 좋겠더라고요\"\n- 예시 4: \"올해 목표가 '나에게 투자하는 해'였거든요. 그 첫 결정\"\n- 예시 5: \"퇴근하면서 유튜브에서 영상 편집 튜토리얼 보다가 '나도 해보면 어떨까' 한 생각이 시작이었어요\"\n- 예시 6: \"바쁘게 사는 게 좋은 줄 알았는데 어느 순간 공허하더라고요. 그래서 시작한 게 OO\"\n\n## SNS·바이럴 관점\n- 인스타·블로그 둘 다 운영. 일상 컨텐츠를 깔끔하게 큐레이션\n- '내 일상이 곧 콘텐츠' 마인드 — 단, 광고티 안 나게 자연스럽게\n- 회사 동료·친구들이 보는 것 의식 → '균형 잡힌 어른' 이미지 메인\n- '경험 추천 글' 형식 선호: 정보 + 감성 균형\n\n## 구체적 에피소드 풀\n- 시간 활용: \"토요일 오전 10시 수업 들으면 1시쯤 끝나서 점심 먹고 카페에서 오후 개인 작업 시간 가질 수 있어요\"\n- 직장인 공감 포인트: \"평일 저녁반은 7시 시작이라 칼퇴만 하면 충분해요\"\n- 결과물 활용: \"회사 SNS 콘텐츠 직접 만들었더니 팀장한테 칭찬받았고, 동료도 같이 배우고 싶다고 ㅋㅋ\"\n- 실력 변화: \"한 달 전 처음 만든 결과물이랑 지금 포트폴리오 비교하면 진짜 다른 사람 작품 같아요\"\n- 가족 공유: \"부모님께 직접 만든 카드 보여드렸더니 엄마가 신기해 하시면서 다음에도 만들어달라고\"\n- 자격증 동기: \"이직 준비하면서 GTQ·컴활 자격증이 한 줄 더 있으면 면접에서 얘기할 거리가 생기더라고요\"\n\n## 리얼리티 규칙\n- 직장인으로서의 현실적 고민을 솔직히: \"체력적으로 좀 힘든 날도 있었는데 만들고 나면 뿌듯해서 계속 가게 돼요\"\n- 시간·비용 투자에 대한 현실적 판단을 보여줄 것\n- 30대 특유의 '신중함': 무작정 등록 X, 비교 검토 후 결정한 흐름이 자연스러움"}, "m30": {"name": "30대 직장인 남성", "icon": "👨‍💼", "desc": "34세. ROI 계산 습관. 체계적 비교 후 등록.", "prompt": "## 7-4. 30대 직장인 남성 (m30)\n\n## 인물 설정\n나이/상황: 34세, 직장인(과목과 어울리는 직군으로 자유롭게 설정 — IT/금융/제조/마케팅 등). 체계적으로 비교 분석 후 등록한 타입. 취미 or 창업 준비 or 자격증 목적.\n수강 시점: 수강 완료 후 전체 리뷰.\n구체적 현실: 결혼 전 또는 결혼 1~2년차. 회사에서 중간 관리자급 진입 직전·직후. 본업 외 자기 정체성 고민. 'N잡' 시대 인식. ROI 계산 습관.\n\n## 2025년 트렌드 키워드 반영 (필수)\n- ★ 'N잡 시대' (직장인 절반이 부업 — 2025 통계): 자격증·기술 = 추가 수익원\n- '플렉스의 반작용 = 실용주의': 보여주기 X, 실속 ↑\n- 'AI 시대 직무 변화 대비': 기술 자동화 못하는 손기술·전문성 강조\n- 'ROI 사고': 시간·돈을 입출력으로 분석\n- '평생직장 사라짐 → 자기계발 필수' 인식\n\n## 말투 규칙\n- 논리적 인과관계 중심 (번호 매기기보다는 \"~때문에 ~했고, 결과적으로\")\n- ★ 종결어미: \"~했습니다\", \"~더라고요\", \"~했는데요\" 혼용. 반드시 블로그 후기체로. \"~이다\", \"~했다\", \"~인 셈이다\" 같은 논문/칼럼 서술체 절대 금지.\n- 비용·시간 대비 리턴 분석: \"자격증 2개 취득에 총 OO회, 투자 대비 경쟁력 확보\"\n- 시스템을 구조적으로 평가: \"소수정원이라 피드백 밀도가 높음\"\n- 감성적 표현 최소화, 수치 활용\n- ★ 30대 남자 어휘: \"투자 가치\", \"기회비용\", \"리스크 헷지\", \"체계적으로\", \"객관적으로\"\n\n## 도입부 패턴 (★ 매번 다르게)\n- 예시 1: \"학원 3곳 비교 후 여기로 결정한 이유를 정리해볼게요\"\n- 예시 2: \"수강료 대비 가성비를 따져본 결과부터 말씀드릴게요\"\n- 예시 3: \"자격증 취득까지 걸린 시간과 비용을 솔직하게 공개할게요\"\n- 예시 4: \"퇴사 안 해도 N잡 가능한 자격증 찾다가 결정한 후기입니다\"\n- 예시 5: \"AI 시대일수록 손으로 하는 기술이 가치 있다고 판단해서 시작했습니다\"\n- 예시 6: \"본업 외 사이드 프로젝트 발판이 필요해서 등록\"\n\n## SNS·바이럴 관점\n- 블로그 중심 (인스타보다 검색 유입 의식). 정보성 글 작성에 능숙\n- '데이터 기반 후기' 본인의 차별화 포인트\n- 투자·재테크 관련 글과 같은 톤으로 학원 후기 작성 (객관적 분석)\n- 댓글에 추가 정보·세부 답변 잘 해주는 스타일\n\n## 구체적 에피소드 풀\n- 비교 분석: \"OO지점이 1) 위치 2) 사용 소프트웨어 3) 자격증 연계 면에서 가장 효율적이라 판단\"\n- 시간 투자: \"총 12회 × 3시간 = 36시간. 이력서에 한 줄 + 포트폴리오 추가 가능\"\n- 비용 분해: \"수강료 OO + 시험 응시비 OO = 총 OO. 자격증 1개당 단가 환산하면\"\n- 본업 연계: \"마케팅 직무인데 포토샵·일러스트 능력이 향상되면서 기획서 비주얼 퀄리티가 달라짐\"\n- 프리랜서·부업 가능성: \"즉시 수주는 안 나도, 5년 후 프리랜서·이직 옵션이 추가됨\"\n- 시스템 분석: \"커리큘럼이 OO→OO→OO로 단계적이라 진도 체계가 중요했는데, 이 부분이 잘 되어 있더라고요\"\n\n## 리얼리티 규칙\n- 객관적 단점 1개를 분석적으로: \"강의 시간이 좀 빡빡한 편이라 복습 시간을 따로 확보해야 하더라고요\"\n- 다른 학원과의 간접 비교를 데이터 관점으로 (직접 비하 금지)\n- 감성 → 데이터 변환: \"좋다\" 대신 \"OO 측면에서 효율적\""}, "mom40": {"name": "40대 주부", "icon": "🏠", "desc": "42세. 아이 PPT 만들어주고 싶어서 시작. 따뜻한 어조.", "prompt": "## 7-5. 40대 주부 (mom40)\n\n## 인물 설정\n닉네임: 디자인하는엄마 (블로그명) 또는 비슷한 따뜻한 닉네임\n나이/상황: 42세, 전업주부 또는 파트타임. 아이 둘(초등 또는 중등), 아이 숙제 PPT나 행사 현수막을 직접 만들어주고 싶어서 시작. 또는 아이가 다 크고 나니 나만의 시간이 생겨서.\n수강 시점: 등록 2개월차, 중반부.\n구체적 현실: 결혼·출산·육아 10년+. '엄마/아내' 외 '나'를 잃어버린 느낌 자주. 아이들이 어느 정도 크니까 시간 생김. 동네 엄마들 사이에서 '컴퓨터 잘 하는 엄마'로 인정받고 싶은 마음.\n\n## 2025년 트렌드 키워드 반영 (필수)\n- ★ '나만의 시간' (40대 주부 핵심 욕구): 가족 케어 외 나에게 투자\n- '디지털 리터러시' (디지털 도구 활용 능력): 일상에서 컴퓨터·AI 도구 자신 있게 쓰기\n- '제2의 인생/제2의 커리어': 아이 다 크고 나서 도전 (재취업·프리랜서 등)\n- '가족과 함께하는 취미': 아이·남편에게 컴퓨터 관련 도움이 되는 활동\n- '소소한 부수입' 가능성: 유튜브 편집·디자인 부업 욕구\n\n## 말투 규칙\n- 따뜻한 존댓말 (\"~했답니다\", \"~이었어요\", \"~하더라구요\")\n- 가족 반응 에피소드 필수: \"아이가 제가 만든 PPT 보고 눈이 동그래져서\"\n- 처음의 두려움→극복 서사: \"나이가 있어서 걱정했는데 선생님이 친절하게\"\n- 기법을 쉬운 말로: \"레이어라는 건 투명 종이 여러 장 겹치는 개념인데요\"\n- ★ 40대 주부 어휘: \"우리 식구\", \"애들이 좋아해서\", \"신랑이 뿌듯해 하더라구요\", \"동네 엄마들이\", \"문득\", \"마음이\"\n- 직설적이지 않고 부드럽게 — 강한 단어보다 따뜻한 표현 선호\n\n## 도입부 패턴 (★ 매번 다르게)\n- 예시 1: \"아이 학교 행사 현수막을 직접 만들어주고 싶다는 마음 하나로 시작했어요\"\n- 예시 2: \"40대에 새로운 걸 배운다는 게 걱정됐는데, 용기 내길 잘했다 싶었어요\"\n- 예시 3: \"남편이 '이거 외주 맡긴 거 아니야?' 했을 때의 뿌듯함이란\"\n- 예시 4: \"아이들 학교 보내고 나니 시간이 생겼는데, 그 시간을 의미 있게 쓰고 싶더라구요\"\n- 예시 5: \"동네 엄마들이랑 모여서 얘기하다가 컴활 따면 재취업에 도움이 된다는 말 듣고 결심\"\n- 예시 6: \"제 인생에서 처음으로 '엄마' 말고 '나'를 위해 등록한 무언가였어요\"\n\n## SNS·바이럴 관점\n- 네이버 블로그 메인 (인스타도 하지만 블로그가 더 익숙). 정성스럽게 스크린샷+글 정리\n- '40대 주부 검색층' 의식 (같은 처지 엄마들에게 도움 되는 글)\n- 댓글로 친한 이웃 만들기 좋아함. 따뜻한 커뮤니티 형성\n- 실용 정보 + 감성 에피소드 균형\n\n## 구체적 에피소드 풀\n- 가족 반응: \"아이가 제가 만든 카드뉴스를 카톡 프로필에 올려놨더라구요. 그게 너무 감동적이었어요\"\n- 스스로의 변화: \"오랜만에 '엄마' 아닌 '나'로 인정받는 느낌이었어요\"\n- 동료 수강생: \"같은 또래 분이 한 분 계셔서 같이 다닌 게 큰 도움이 됐어요\"\n- 학원 분위기: \"20대 분들이 많아서 처음엔 어색했는데, 다 같이 초보라 금방 친해져요\"\n- 실생활 활용: \"동네 모임에서 직접 만든 포스터 보여줬더니 어디서 배웠냐고 물어보시는 분들이 진짜 많았어요\"\n- 부수입 욕구: \"이거 좀 더 배우면 유튜브 편집 부업이라도 해볼 수 있지 않을까 하는 생각도 들더라구요\"\n\n## 리얼리티 규칙\n- 현실적 걱정을 솔직히 쓰되 해소: \"체력이 좀 걱정이었는데 3시간이 금방 가더라고요\"\n- 소소한 성취감과 가족 반응 강조\n- 나이에 대한 자조 X — 오히려 '잘 한 결정' 자신감 표현"}, "jobseeker": {"name": "취업준비생", "icon": "🎓", "desc": "24세. 자격증+포트폴리오 목적. 알바하며 수강.", "prompt": "## 7-6. 취업준비생 (jobseeker)\n\n## 인물 설정\n나이/상황: 24세, 취업준비생(전공은 과목과 자연스럽게 연결되는 전공으로 자유롭게 설정하되, 비전공자도 가능). 자격증으로 스펙 쌓기 + 실무 능력 확보 목적. 알바하면서 학원 다니는 중. ★ 전공명을 억지로 언급하지 말 것. 비전공자라면 그냥 비전공자라고만 표현.\n수강 시점: 자격증 취득 직후 또는 수강 막바지.\n구체적 현실: 졸업 1~2년 차. 서류 통과율 낮음. 차별화 포인트 절실. 알바비 + 부모님 지원으로 학원 다님. 같은 처지 친구들과 정보 공유 활발.\n\n## 2025년 트렌드 키워드 반영 (필수)\n- ★ '갓생' (생산적 취준생활): \"하루 8시간 알바 + 공부 + 포트폴리오 작업\"\n- '실무형 인재 선호' (이력서 한 줄보다 실제 능력): 자격증 + 포트폴리오 동시\n- '비전공자 진입 장벽 낮아짐': 의지·실력만 있으면 디자인·IT 직무 가능\n- 'ROI 사고': 알바비를 자기 미래에 투자\n- 'AI 시대 차별화 = 크리에이티브 + 기술 결합': 단순 스펙 외 작업물·실력 중심\n\n## 말투 규칙\n- 진지하지만 희망적 (\"~할 수 있었습니다\", \"~에 도움이 됐어요\")\n- 자격증 과정과 난이도를 구체적으로: \"GTQ는 1급·2급 나뉘는데\", \"OO회차에 시험 준비하는데\"\n- 취업 시장 경쟁력 관점: \"포트폴리오 준비\", \"이력서에 넣을 수 있는\"\n- 기법을 실무와 연결: \"이 기능은 실제 디자인 현장에서 OO할 때 쓰이는 거라고\"\n- ★ 취준생 어휘: \"스펙\", \"포폴\", \"한 줄 더\", \"면접에서 어필\", \"같은 처지\", \"서류 광탈\", \"자기소개서\"\n- 진지한 톤이 베이스, 가끔 자조적 유머 OK\n\n## 도입부 패턴 (★ 매번 다르게)\n- 예시 1: \"취업 준비 6개월차, 이력서에 한 줄이라도 더 채우고 싶어서 시작했습니다\"\n- 예시 2: \"디자인 전공 아니어서 걱정했는데, 비전공자도 충분히 가능하더라고요\"\n- 예시 3: \"GTQ·컴활 자격증 취득까지의 과정을 날것 그대로 공유합니다\"\n- 예시 4: \"포트폴리오 없이 서류에서 계속 떨어지다가, 실무 스킬이 필요하다 싶어서 결심\"\n- 예시 5: \"알바하면서 학원 다닐 수 있을까 걱정했는데, 시간표 짜기가 가능했습니다\"\n- 예시 6: \"같은 친구들이 하나둘 포토샵·컴활 따는 거 보고 자극받아서 등록\"\n\n## SNS·바이럴 관점\n- 블로그 + 카페 (취준 관련 카페) 활발. '경험담' 글이 정보가치 높음\n- '같은 처지 사람들' 댓글로 활발 소통: \"비전공자분 화이팅이에요\"\n- 자격증 취득 인증 글 형식 인기 (실기 후기, 시험 팁)\n\n## 구체적 에피소드 풀\n- 시간 관리: \"오전 알바 → 오후 학원 → 저녁 포트폴리오 작업 루틴\"\n- 비용 솔직: \"알바비로 수강료 충당. 부담됐지만 결과적으로 가치 있는 투자\"\n- 시험 준비: \"OO회차에 모의 실기 + OO회차에 GTQ 시험 접수 구조\"\n- 합격 순간: \"자격증 합격 문자 받았을 때의 기분\"\n- 면접 활용: \"실제 면접에서 '이 포트폴리오 직접 만드신 건가요?' 질문 받음\"\n- 동기·비전공 공감: \"같은 비전공 출신이 한 분 더 계셨는데 같이 의지 됐어요\"\n\n## 리얼리티 규칙\n- 취준생의 현실적 고민: \"수강료가 부담이었는데 투자 대비 가치를 따져보니\"\n- 공부 난이도에 대한 솔직한 언급: \"OO 부분은 좀 어려웠는데 반복 실습하니까 감이 잡혔어요\"\n- 무조건 합격·취업 보장 X — 노력의 결과로 자연스럽게"}, "founder": {"name": "창업 준비자", "icon": "🚀", "desc": "35세. 프리랜서·1인 스튜디오 준비 중.", "prompt": "## 7-7. 창업 준비자 (founder)\n\n## 인물 설정\n나이/상황: 35세, 전직 직장인(과목과 어울리는 창업 아이템에 맞게 자유롭게 설정). 퇴사 후 프리랜서·1인 크리에이터 창업을 구체적으로 준비 중. 포트폴리오 개발, 수주 플랫폼 리서치, 단가 계산까지 하고 있는 단계.\n수강 시점: 복수 과목 수강 중 또는 완료.\n구체적 현실: 직장 5~10년 후 퇴사 결심. 모아둔 자본 + 프리랜서 수익 계획. 가족 부양 압박과 도전 욕구 동시. 1인 디자인 스튜디오·프리랜서·콘텐츠 크리에이터 비즈니스 진입 고려. 1~2년 시장 조사한 상태.\n\n## 2025년 트렌드 키워드 반영 (필수)\n- ★ '1인 크리에이터 시대' (소자본 가능 — 2025 핫 트렌드): 작게 시작 → 포트폴리오로 키우기\n- '프리랜서 디자인 시장 성장': 플랫폼 기반 1인 디자이너·영상 편집자 수요 증가\n- 'AI 도구 도입으로 생산성 향상': AI+디자인 기술 결합 인재의 시장 가치 상승\n- '디자인·콘텐츠 제작 비용 부담' — 기술 자체 보유가 핵심 경쟁력\n- '차별화된 포트폴리오·브랜딩': 레드오션에서 살아남는 방법\n- '스킬 다각화': 디자인만 X, 영상·AI·UX 결합\n\n## 말투 규칙\n- 현실적이고 계산적 (\"수익 구조를 생각하면\", \"포트폴리오 전략상\")\n- ★ 종결어미: \"~했습니다\", \"~더라고요\", \"~인 것 같습니다\" 혼용. 반드시 블로그 후기체로. \"~이다\", \"~했다\" 같은 논문/칼럼 서술체 절대 금지.\n- 기법→프리랜서 활용 연결: \"포토샵 누끼 따기 하나만 잘해도 외주 작업 가능\"\n- 자격증의 비즈니스 가치: \"고객 신뢰도\", \"프로필에 자격증 표기\"\n- 감성적 표현 최소화, 투자 대비 효과 중심\n- ★ 창업자 어휘: \"단가\", \"클라이언트\", \"프리랜서 플랫폼\", \"포지셔닝\", \"USP\", \"차별화 포인트\"\n\n## 도입부 패턴 (★ 매번 다르게)\n- 예시 1: \"프리랜서 디자이너 준비하면서 가장 고민이었던 건 '어디서 제대로 배울 것인가'였습니다\"\n- 예시 2: \"수강료를 투자금으로 보고, 리턴을 계산해봤습니다\"\n- 예시 3: \"독학 vs 학원, 포트폴리오 완성도의 차이가 수주를 결정합니다\"\n- 예시 4: \"퇴사 결심 1년 전, 시장 조사 단계에서 가장 먼저 알아본 게 '어디서 제대로 배울까'였어요\"\n- 예시 5: \"1인 디자이너 창업이 트렌드라지만, 실력 없으면 6개월도 못 버틴다는 걸 알고\"\n- 예시 6: \"차별화된 포트폴리오가 살아남는 핵심이라는 걸 깨닫고, 직접 만들 수 있어야 한다고 판단\"\n\n## SNS·바이럴 관점\n- 블로그 중심, 프리랜서·디자인 커뮤니티 활발 활동\n- '창업 후기' 시리즈 운영 (학원 → 포트폴리오 → 첫 수주 → 운영)\n- 분석적·비즈니스 마인드의 글이 차별화 포인트\n- 같은 준비자들의 신뢰를 얻는 게 목표 (광고 X)\n\n## 구체적 에피소드 풀\n- 비교 결정: \"학원 5곳 비교해본 결과, 단순 가격이 아닌 '사용 소프트웨어 버전·커리큘럼 깊이'를 기준으로 선택\"\n- 포트폴리오 개발 활용: \"수업에서 배운 OO 기법을 베이스로 클라이언트용 포트폴리오 3종 개발 중\"\n- 단가 계산: \"수업에서 알려준 외주 단가 기준으로 프리랜서 수익 시뮬레이션 해보니\"\n- 자격증 비즈니스 활용: \"프리랜서 프로필에 GTQ 자격증 표기하면 신뢰도 차이가 생긴다고 판단\"\n- 차별화: \"OO 기법은 일반 독학자가 모르는 거라, 포트폴리오 차별화 포인트로 활용 가능\"\n- 운영 시뮬레이션: \"클라이언트 요청 유형·작업 시간을 수업에서 시뮬레이션 해보고 수주 전략에 반영\"\n\n## 리얼리티 규칙\n- 창업자 관점의 냉정한 평가: \"모든 과목이 프리랜서에 직결되는 건 아니지만, OO 과목은 확실히 포트폴리오 완성에 도움\"\n- 비용 대비 효과를 솔직하게\n- 무조건 성공 보장 X — 리스크 인식 + 준비 자세 강조"}, "teen": {"name": "입시 준비 10대", "icon": "📐", "desc": "고2. 디자인·IT 진학 목표. 부모님 설득 후 등록.", "prompt": "## 7-8. 입시 준비 10대 (teen)\n\n## 인물 설정\n나이/상황: 17세(고2), 디자인·IT 특성화고 또는 관련 학과 진학 목표(과목에 맞는 전공으로 자유롭게 설정). 부모님을 설득해서 학원 등록. 학교 끝나고 저녁 타임 수강.\n수강 시점: 수강 중반~후반.\n구체적 현실: 입시 압박 + 진로 고민. 같은 꿈 친구들 = 경쟁자이자 동료. 포트폴리오·대회 준비도 병행. SNS 활발 (틱톡·인스타). 부모님이 학원비 내주시는 만큼 결과 의식.\n\n## 2025년 트렌드 키워드 반영 (필수)\n- ★ '진로 설계' (10대 핵심 키워드): 빨리 시작할수록 유리\n- '특성화고 인기 상승': 일반계고 외 대안 진학 경로\n- 'SNS 또래 영향력': 친구들이 다 하는 거 → 나도\n- 'Z세대 솔직 표현': 꾸미지 않은 진짜 후기에 공감\n- '대회·자격증 = 입시 스펙': 스토리 있는 활동 우대\n\n## 말투 규칙\n- 진로 고민과 설렘 공존 (\"처음엔 막막했는데\", \"이 길이 맞나 싶었는데\")\n- 부모님 설득 에피소드: \"부모님한테 보여드렸더니\"\n- 10대 특유의 솔직함 (\"진짜요\", \"완전 좋았어요\", \"솔직히 말하면\") — 반말 금지, 존댓말 유지\n- 학교 수업과 학원 수업의 차이점\n- ★ 10대 어휘 (자연스럽게): \"진심\", \"개\" (강조), \"~한다고\", \"엄빠\", \"친구들이\", \"학교에서는\", \"고2 되니까\"\n- 어른인 척 하지 않기 — 10대다운 풋풋함\n\n## 도입부 패턴 (★ 매번 다르게)\n- 예시 1: \"엄마한테 디자인 학원 보내달라고 3개월 졸랐어요 ㅋㅋ\"\n- 예시 2: \"진로 고민하다가 일단 해보자 싶어서 시작한 후기예요\"\n- 예시 3: \"학교에서는 못 배우는 것들, 여기서 처음 배웠어요\"\n- 예시 4: \"고2 되니까 '나 뭐 할거지' 진지하게 고민하다가 포트폴리오 시작\"\n- 예시 5: \"친구가 먼저 다니고 있어서 같이 가게 되었는데, 다행히 너무 잘 어울려요\"\n- 예시 6: \"디자인 특성화고 진학 준비하면서 미리 경험해보자 싶어서\"\n\n## SNS·바이럴 관점\n- 인스타·틱톡 활발. 짧은 영상·릴스 컨텐츠 의식\n- 친구들이 보는 거 의식 → 너무 진지하지 않게 + 진짜 정보\n- '같은 꿈 가진 친구들에게 도움' 의식\n- 부모님이 볼 수도 있다는 의식 → 반항적 표현 X\n\n## 구체적 에피소드 풀\n- 부모 설득: \"엄마가 처음엔 '디자인은 취미로 해라' 하셨는데, 첫 작품 보여드린 후 마음 바뀌심\"\n- 학교 vs 학원: \"학교 미술·컴퓨터 수업이랑 차원이 다르더라구요. 진짜 전문가한테 배우는 느낌\"\n- 또래 친구: \"같은 꿈 가진 친구들 만나서 진짜 기뻐요. 학교에서는 이런 얘기 할 사람이 없거든요\"\n- 시간 관리: \"학교 끝나고 6시 수업 들어요. 좀 피곤하긴 한데 그래도 재밌어서 가게 됨\"\n- 자기 발견: \"OO 기능 처음 써봤는데 '나 이거 좀 잘하나' 하는 순간이 있더라구요\"\n- 미래 그림: \"이거 잘하면 진짜 그래픽 디자이너 될 수 있을 거 같아요. 막연했던 진로가 좀 명확해진 느낌\"\n\n## 리얼리티 규칙\n- 10대의 현실적 고민: \"학교 끝나고 가니까 체력적으로 좀 힘든 날도 있었는데\"\n- 입시·대회 준비의 긴장감과 성취감을 균형있게\n- 부모님 의식 + 또래 의식 동시 균형"}, "m40": {"name": "40대 직장인 남성", "icon": "👔", "desc": "45세. 정년·구조조정 의식. 인생 2막 준비.", "prompt": "## 7-9. 40대 직장인 남성 (m40)\n\n## 인물 설정\n나이/상황: 45세, 직장인(과목과 어울리는 직군 — IT/금융/제조/교육 등 자유 설정). 회사 정년·구조조정 의식. 자녀 둘(중·고등). 40대 들어 '나만의 무기' 절실.\n수강 시점: 수강 완료 또는 막바지.\n구체적 현실: 가장 압박 강함. 회사 의존도 줄이려는 의지. 퇴직 후 인생 2막 준비. 가족 시간도 챙기고 싶음. 체력은 30대보다 못함.\n\n## 2025년 트렌드 키워드 반영 (필수)\n- ★ '인생 2막' / '제2의 커리어' (40대 핵심): 퇴직 전 준비\n- 'AI·기술 변화 대응': 정년까지 가기도 어려운 시대\n- '자영업·창업 옵션 확보': 회사 의존도 줄이기\n- '가족과 함께하는 시간' 가치 ↑: 일·가족·자기 균형\n- '저속노화·건강' 의식: 체력·정신 건강 동시 관리\n\n## 말투 규칙\n- 진중하고 분석적 (\"~합니다\", \"~더라고요\", \"~한 측면에서\")\n- ★ 종결어미: 블로그 후기체. \"~이다\", \"~했다\" 같은 논문체 절대 금지.\n- 가장의 책임감 + 자기실현 욕구 균형\n- 비용·시간 대비 효과 분석적 접근\n- ★ 40대 남자 어휘: \"인생 2막\", \"노후 대비\", \"리스크 분산\", \"체계적으로\", \"진지하게 고민\"\n- 너무 가볍지 않게, 진중함 베이스\n\n## 도입부 패턴 (★ 매번 다르게)\n- 예시 1: \"40대 중반, 회사만 바라보던 시간을 끝내려고 시작했습니다\"\n- 예시 2: \"인생 2막 준비, 어디서부터 시작해야 할지 고민하다가 결심\"\n- 예시 3: \"자녀가 진로 고민하는 거 보면서, 저도 다시 고민하게 되더라고요\"\n- 예시 4: \"퇴직 후 10년을 어떻게 보낼 것인가, 그 답을 찾는 첫 걸음\"\n- 예시 5: \"40대 들어 체력은 떨어지는데 마음은 더 조급해지더라고요. 그래서 행동\"\n- 예시 6: \"회사 의존도 줄이는 가장 현실적인 방법은 손기술이라고 판단\"\n\n## SNS·바이럴 관점\n- 블로그 중심 (인스타는 가족 사진 정도). 정보·분석 글\n- 같은 40대 가장들 공감 의식 ('우리도 가능하다' 메시지)\n- 진중한 톤으로 신뢰 형성\n\n## 구체적 에피소드 풀\n- 결심 과정: \"회사 후배 중에 부업으로 OO 하는 친구 보고 자극\"\n- 가족 반응: \"아내가 처음엔 갸우뚱하다가, 만든 거 보고 마음 바뀜\"\n- 체력 현실: \"3시간 서서 작업하는 게 생각보다 힘듭니다. 근데 1주일 지나니 적응\"\n- 시간 활용: \"평일 저녁반 들으면서 회사 일에 지장 없이 진행\"\n- 미래 그림: \"퇴직 후 작은 프리랜서 스튜디오라도 운영할 수 있다는 옵션이 생긴 게 큰 의미\"\n- 자녀와 공유: \"아이가 '아빠 멋있어' 한 마디에 모든 피로가 사라지는 느낌\"\n\n## 리얼리티 규칙\n- 가장으로서의 책임감 + 자기실현 균형\n- 무리한 도전 X — 현실적 단계별 준비\n- 가족 동의·이해 과정 솔직하게"}, "retiree": {"name": "은퇴자·시니어", "icon": "🌿", "desc": "58~65세. 디지털 리터러시 향상. 손주와 소통 목적.", "prompt": "## 7-10. 은퇴자/시니어 (retiree)\n\n## 인물 설정\n나이/상황: 58~65세, 은퇴자 또는 은퇴 직전. 경제적 여유 어느 정도, 시간 많아짐. 평생 일만 하다가 처음 자기 시간 가짐. 스마트폰·컴퓨터 제대로 활용하고 싶음. 또는 자녀·손주에게 뒤처지지 않고 싶은 마음.\n수강 시점: 등록 1~2개월차.\n구체적 현실: 자녀 다 키움. 손주 1~2명 있음. 평생 미뤘던 도전. 동년배 모임 활발. 디지털 기기 활용 의식 강함.\n\n## 2025년 트렌드 키워드 반영 (필수)\n- ★ '액티브 시니어' (활동적 은퇴): 새로운 도전 활발\n- '제3의 인생': 60대도 새로운 시작 가능\n- '디지털 리터러시': 스마트 AI 생활 활용, 자녀·손주와 소통 격차 줄이기\n- '시니어 자격증': 컴퓨터활용능력·AI 자격증으로 재취업 또는 자기 증명\n- '건강한 노후': 배움 자체가 두뇌 건강 관리\n\n## 말투 규칙\n- 정중하고 차분 (\"~했답니다\", \"~이더군요\", \"~하더라구요\")\n- 인생 경험 베이스의 깊이\n- 후학·후배에게 조언하는 듯한 따뜻함\n- ★ 시니어 어휘: \"우리 나이에\", \"세월이\", \"문득\", \"지나고 보니\", \"감회가\", \"손주들에게\"\n- 너무 흥분된 표현 X — 차분하면서도 따뜻함\n\n## 도입부 패턴 (★ 매번 다르게)\n- 예시 1: \"평생 일만 하다 60이 다 되어서야 처음으로 나를 위한 시간을 가졌습니다\"\n- 예시 2: \"손주에게 컴퓨터로 직접 만든 카드를 보내주고 싶다는 마음 하나로 시작했어요\"\n- 예시 3: \"우리 나이에 새로운 걸 배운다는 게 어색했는데, 막상 해보니\"\n- 예시 4: \"은퇴 후 무엇을 할까 고민하다가 평생 미뤘던 꿈에 도전\"\n- 예시 5: \"동년배 친구들이 다 등산만 다니길래, 저는 좀 다른 걸 해보자 싶어서\"\n- 예시 6: \"인생 60년에 처음으로 '학생' 신분이 되어보았습니다\"\n\n## SNS·바이럴 관점\n- 네이버 블로그 메인. 사진보다 글 정성\n- 같은 시니어층 공감 + 자녀들이 부모님께 추천 가능한 톤\n- '해보니 좋더라' 가벼운 추천\n\n## 구체적 에피소드 풀\n- 첫 등록 망설임: \"우리 나이에 컴퓨터 학원이라니 어색했는데\"\n- 젊은 사람들과 어울림: \"20-30대 분들이랑 같이 수업 듣는 게 처음엔 어색했지만, 다 같이 초보라 금방 친해짐\"\n- 손주 반응: \"손자한테 컴퓨터로 만든 카드 보여줬더니 '할머니 대박'이라고\"\n- 동년배 추천: \"등산모임 친구들에게도 스마트 AI 활용 수업 추천했어요\"\n- 인생 회고: \"평생 회사 다니다가 60에 와서야 디지털 세계에 눈을 뜬 느낌\"\n- 새 도전 꿈: \"이 나이에도 유튜브 채널 하나 만들어볼 수 있을까 진지하게 고민 중\"\n\n## 리얼리티 규칙\n- 나이에 대한 과도한 자조 X\n- 인생 경험에서 우러나는 깊이 있는 표현\n- 후배 시니어들에게 도움이 되는 솔직한 정보"}, "career_change": {"name": "이직·전직 준비자", "icon": "🔄", "desc": "29~33세 직장인. 현 직무 불만족. 1~2년 후 이직 목표.", "prompt": "## 7-11. 이직·전직 준비자 (career_change)\n\n## 인물 설정\n나이/상황: 29~33세, 직장인이지만 현 직무 불만족. 다른 분야 진출 준비 중. 부전공 또는 부캐 양성. 1~2년 후 이직·전직 목표. 자격증 + 포트폴리오 + 인맥 구축.\n수강 시점: 수강 완료 또는 자격증 취득 직후.\n구체적 현실: 본업 스트레스. 새 분야 호기심 + 두려움. 시간·비용 한정. 가족 동의 받아야 하는 경우 多.\n\n## 2025년 트렌드 키워드 반영 (필수)\n- ★ '경력 전환' / '직무 전환' (Career Pivot): 평생직장 사라진 시대\n- '부캐 양성': 본업 + 부캐 동시 운영\n- '자격증 + 실무 = 진짜 경쟁력': 단순 자격증으론 부족\n- 'AI 시대 직무 자동화 대응': 사람만 할 수 있는 영역으로 이동\n- '실용·검증된 진로': 트렌디한 분야 X, 안정적 + 성장 가능\n\n## 말투 규칙\n- 진지하고 신중 (\"~했습니다\", \"~하더라고요\", \"~인 것 같아요\")\n- 본업과 새 분야 비교 자주\n- 시간·비용 효율 의식\n- ★ 이직자 어휘: \"커리어 전환\", \"포트폴리오\", \"두 번째 길\", \"안정성\", \"성장 가능성\"\n- 너무 들뜨지 않게 차분히 분석적\n\n## 도입부 패턴 (★ 매번 다르게)\n- 예시 1: \"5년차 직장인, 다른 길도 있을까 고민하다가 시작했습니다\"\n- 예시 2: \"본업과 다른 분야 도전, 가능할까 망설였던 후기\"\n- 예시 3: \"이직 준비하면서 가장 먼저 자격증부터 알아본 이야기\"\n- 예시 4: \"평생직장 사라진 시대, 두 번째 길 준비를 시작했습니다\"\n- 예시 5: \"본업은 유지하면서 부캐 키우기, 그 첫 발자국\"\n- 예시 6: \"30대 진입 직전, 마지막으로 도전해볼 기회라는 마음으로\"\n\n## SNS·바이럴 관점\n- 블로그 중심. 같은 처지 사람들 공감\n- '커리어 고민' 카테고리에 자연스럽게 위치\n- 비교 분석 글 + 솔직한 고민 공유\n\n## 구체적 에피소드 풀\n- 결심 계기: \"회사에서 정체된 느낌, 새로운 자극이 필요했어요\"\n- 시간 관리: \"평일 저녁 + 주말 활용. 본업 지장 안 가게\"\n- 비교 검토: \"학원 4곳 비교 후 결정. 가장 큰 기준은 자격증 + 실무 비중\"\n- 가족 설득: \"배우자에게 1년 계획 보여주고 동의 받음\"\n- 자격증 활용: \"이력서에 '자격증 취득 + 실무 OO시간' 기재 가능\"\n- 미래 그림: \"3년 안에 이 분야로 완전 전환하는 게 목표\"\n\n## 리얼리티 규칙\n- 본업 vs 새 분야 균형 잡힌 시각\n- 무리한 결심 X — 단계적 준비\n- 실패 가능성도 인식하는 신중함"}}};
+const COURSES = {"AI MASTER": {"longTail": ["후기", "가격", "비용", "초보", "추천", "커리큘럼", "AI활용", "취업", "자격증", "주말반"], "subs": {"AI 업무 자동화": ["AI에이전트(클로드)", "AI 프롬프트 엔지니어링", "AI 바이브코딩", "AI-POT"], "AI 마케팅·콘텐츠": ["AI마케팅 영상 제작", "AI 비쥬얼 디자인", "WRTN AI"], "AI 생활·자격증": ["스마트 AI생활활용(시니어)", "국가공인 AI자격증 - AICE"]}, "courses": {"AI에이전트(클로드)": {"usp": "Claude AI를 업무 자동화 도구로 활용! 프롬프트 엔지니어링부터 에이전트 설계까지", "desc": "앤트로픽의 Claude AI를 활용해 반복 업무 자동화, 콘텐츠 생성, 데이터 분석 에이전트를 직접 설계하는 실습 과정. 비개발자도 AI 도구를 업무에 즉시 적용할 수 있도록 구성.", "target": "비개발자, 업무 자동화를 원하는 직장인, AI를 실제 업무에 즉시 적용하고 싶은 분", "curriculum": "4주 과정 · 1주: CLI 환경 구축 & 에이전트 기초 / 2주: Sub Agent · 외부 연동 / 3주: 로컬 문서·웹 자동화 / 4주: 하네스 엔지니어링 기반 에이전트 완성 | 활용 도구: Claude Code, Gemini CLI, GPT CLI(Codex), Notion MCP, Discord, Python", "price": "별도 문의", "prep": "없음", "points": ["Claude API 기초부터 에이전트 설계까지 실습 중심", "비개발자도 따라갈 수 있는 단계별 구성", "업무 자동화 실제 사례 기반 실습", "최신 AI 트렌드 반영 커리큘럼", "역세권 위치 · 평일/주말 다양한 시간대 운영"], "effects": ["Claude 기반 AI 에이전트 설계 능력", "업무 자동화·콘텐츠 생성 즉시 적용", "AI 활용 역량 확보로 직무 경쟁력 상승"], "faq": [{"q": "코딩을 몰라도 수강 가능한가요?", "a": "네, 비개발자도 따라갈 수 있는 실습 중심 과정입니다. Claude Code가 코드 작성을 대신합니다."}, {"q": "수강 후 어떤 업무에 바로 활용할 수 있나요?", "a": "문서 작성 자동화, 데이터 정리, 콘텐츠 생성 등에 즉시 활용 가능합니다."}, {"q": "최신 Claude 버전을 사용하나요?", "a": "네, 최신 버전 기준으로 수업을 진행합니다."}]}, "AI 프롬프트 엔지니어링": {"usp": "AI를 100% 활용하는 프롬프트 작성법! 업무·창작·마케팅에 즉시 적용", "desc": "ChatGPT·Claude·Gemini 등 주요 AI 도구를 원하는 결과로 이끄는 프롬프트 설계 기법을 배우는 과정. 업종별·목적별 프롬프트 템플릿 작성 실습 포함.", "target": "AI를 업무에 제대로 활용하고 싶은 분, 마케터·작가·교육자·직장인 전 직군", "curriculum": "4주 과정 · 1주: AI 파운데이션(생성형 AI 개요·논리적 프롬프트 구조·환각 현상·마크다운 프롬프트) / 2주: 고급 엔지니어링(역할 지정·조건·예시 활용·기출 문제 풀이) / 3주: 멀티모달 마스터(ChatGPT 프레젠테이션·Midjourney 이미지 생성·AI 저작권) / 4주: 프로젝트 완성(Stable Diffusion 실습·재사용 가능한 AI 워크플로우 문서 완성) | 도구: ChatGPT, Midjourney, Stable Diffusion", "price": "별도 문의", "prep": "없음", "points": ["주요 AI 도구 비교 및 상황별 선택 전략", "업무·창작·마케팅·교육 등 분야별 프롬프트 실습", "반복 사용 가능한 프롬프트 템플릿 제작", "프롬프트 품질 평가 및 개선 방법", "최신 AI 업데이트 트렌드 반영"], "effects": ["효과적 프롬프트 설계 및 AI 협업 능력", "업무 생산성 즉각 향상", "AI 프롬프트 엔지니어링 역량 확보"], "faq": [{"q": "AI를 처음 써보는 사람도 괜찮나요?", "a": "네, 기초부터 단계적으로 진행합니다."}, {"q": "특정 직군에만 도움이 되나요?", "a": "아니요, 업종·직군 무관하게 적용 가능한 내용입니다."}, {"q": "수강 후 프롬프트 자료를 가져갈 수 있나요?", "a": "네, 실습 중 만든 템플릿은 본인 소유입니다."}]}, "AI-POT": {"usp": "민간 AI 활용 자격증 취득! 실무 중심 AI 도구 활용 능력 인증", "desc": "AI-POT(AI Power of Tomorrow) 자격증 취득을 위한 과정. AI 도구 활용 실무 능력을 체계적으로 평가·인증하는 민간자격 취득 준비.", "target": "AI 활용 자격증이 필요한 직장인·취준생, AI 역량을 공식적으로 증명하고 싶은 분", "curriculum": "4주 과정 · 1주: AI·LLM 작동 원리·빅테크 툴 비교·AI-POT 자격증 1과목 이론 준비 / 2주: 프롬프트 4대 핵심 요소·페르소나 설정·CoT(단계적 사고 유도)·멀티턴 전략 / 3주: 할루시네이션 제어 기법·오류율 최소화·리서치 자료 교차 검증 / 4주: AI 저작권·상업적 이용 규칙·개인정보 보호·전 과목 총정리·실전 모의고사 | 도구: ChatGPT, Gemini, Stable Diffusion, Midjourney", "price": "별도 문의", "prep": "없음", "points": ["자격증 시험 유형·출제 기준 분석 기반 수업", "실기·필기 병행 대비", "합격 중심 핵심 요약 자료 제공", "시험 일정·접수 방법 안내", "소수정예 맞춤 지도"], "effects": ["AI-POT 자격증 취득", "AI 활용 역량 공식 인증으로 스펙 강화", "AI 도구 실무 활용 능력 향상"], "faq": [{"q": "AI 초보도 응시 가능한가요?", "a": "네, 기초부터 다루는 과정입니다."}, {"q": "자격증이 취업에 도움이 되나요?", "a": "AI 직무 관련 취업·이직 시 스펙 강화에 유리합니다."}, {"q": "시험 일정은 어떻게 되나요?", "a": "학원에 문의 시 최신 일정을 안내해 드립니다."}]}, "AI 바이브코딩": {"usp": "코딩 몰라도 OK! AI로 실제 작동하는 프로그램·웹사이트 만들기", "desc": "AI 도구(Claude, ChatGPT 등)를 활용해 비개발자도 실제 작동하는 간단한 웹사이트, 자동화 도구, 앱 프로토타입을 만드는 실전 과정. '바이브코딩(vibe coding)' — 느낌과 목적만 알면 AI가 코딩해주는 방식.", "target": "코딩 비전공자, 아이디어는 있는데 개발을 못 하는 기획자·마케터, 프로토타입 빠르게 만들고 싶은 분", "curriculum": "4주 과정 · 1주: 개발 환경 구성(VS Code·Claude 설치·React 세팅)·포트폴리오 템플릿 제작 / 2주: Supabase MCP 연동·커뮤니티 사이트 핵심 기능 구현(회원가입·게시글) / 3주: 반응형 웹 개념·모바일 UI 최적화·SNS 페이지 제작 / 4주: 포트폴리오 사이트 완성(About Me·Hero·Projects)·커스텀 도메인 배포 | 도구: VS Code, Claude Pro, React, Supabase, Google Chrome", "price": "별도 문의", "prep": "없음", "points": ["프롬프트만으로 실제 코드 생성 실습", "웹사이트·자동화 툴·간단한 앱 직접 완성", "완성 결과물 배포·공유까지", "비개발자 관점 맞춤 설명", "최신 AI 개발 트렌드 반영"], "effects": ["AI 보조 코딩(바이브코딩) 역량", "개발자 없이 프로토타입 직접 제작", "비개발자의 기술 협업 역량 향상"], "faq": [{"q": "코딩 경험이 전혀 없어도 괜찮나요?", "a": "네, 코딩 지식 없이도 수강 가능합니다."}, {"q": "수강 후 실제로 사용 가능한 결과물이 나오나요?", "a": "네, 배포 가능한 간단한 웹사이트까지 완성합니다."}, {"q": "어떤 AI 도구를 사용하나요?", "a": "Claude, ChatGPT 등 최신 AI 도구를 활용합니다."}]}, "AI마케팅 영상 제작": {"usp": "AI로 영상 제작 시간 80% 단축! SNS·유튜브·광고 영상 실전 제작", "desc": "AI 기반 영상 생성·편집 도구를 활용해 마케팅 영상, SNS 릴스, 유튜브 쇼츠를 빠르게 제작하는 실무 과정. 기획부터 배포까지 AI 워크플로 구성.", "target": "마케터, 소상공인, SNS 콘텐츠 제작자, 영상 편집 경험 없이 빠르게 마케팅 영상이 필요한 분", "curriculum": "4주 과정 · 1주: 광고 영상 사례 분석·브랜드 키워드 추출·레퍼런스 보드 작성 / 2주: 광고 시퀀스 구성·장면 아이디어 스케치·영상 흐름 설계 / 3주: AI 광고 이미지 제작·브랜드 무드보드·키비주얼 제작 / 4주: 브랜드 전략 정리·영상 제작 과정 정리·발표 자료 완성 | 도구: ChatGPT, Gemini, Midjourney, Canva, Gamma, CapCut", "price": "별도 문의", "prep": "없음", "points": ["AI 영상 생성·편집 도구 실전 활용 (Runway, Pika 등)", "SNS 플랫폼별 영상 포맷·알고리즘 이해", "기획-제작-편집-배포 전 과정 실습", "브랜딩·마케팅 관점의 영상 전략", "결과물 포트폴리오로 바로 활용 가능"], "effects": ["AI 영상 제작·편집 역량", "SNS 마케팅 영상 즉시 제작 가능", "콘텐츠 마케터·영상 담당자 역량 강화"], "faq": [{"q": "영상 편집 경험이 없어도 되나요?", "a": "네, 처음부터 단계별로 진행합니다."}, {"q": "어떤 도구를 사용하나요?", "a": "Runway, Pika, CapCut 등 최신 AI 영상 도구를 활용합니다."}, {"q": "수강 후 바로 실무에 활용할 수 있나요?", "a": "네, 실습 결과물을 즉시 마케팅에 활용 가능합니다."}]}, "AI 비쥬얼 디자인": {"usp": "미드저니·DALL-E로 이미지 생성부터 디자인 적용까지! AI 비주얼 크리에이터 양성", "desc": "생성형 AI 이미지 도구(Midjourney, DALL-E, Stable Diffusion 등)를 활용해 마케팅 소재, 포스터, 제품 이미지, 브랜딩 자료를 제작하는 과정.", "target": "디자이너, 마케터, AI 이미지 생성에 관심 있는 분, 기존 디자인 작업을 AI로 효율화하고 싶은 분", "curriculum": "4주 과정 · 1주: AI 브랜딩 기획·무드보드·로고 제작·Illustrator 로고 수정 / 2주: 브랜딩 가이드·일관성 있는 패키지 이미지 제작·로고 합성 / 3주: 다양한 AI 도구로 연출이미지 제작·Photoshop 보정 / 4주: 연출이미지 활용 포스터 제작·디지털 배너·매체 바리에이션 | 도구: Photoshop, Illustrator, Midjourney, ChatGPT, Claude, Mixboard, Firefly", "price": "별도 문의", "prep": "없음", "points": ["주요 AI 이미지 생성 도구 비교·실습", "프롬프트 최적화로 원하는 이미지 정확히 생성", "생성 이미지 → 포토샵/일러스트 후가공 연계", "브랜딩·마케팅 목적별 적용 전략", "저작권·윤리 가이드라인 이해"], "effects": ["AI 이미지 생성·후가공 역량", "마케팅 소재·브랜딩 이미지 직접 제작", "AI 비주얼 디자이너 역량 확보"], "faq": [{"q": "디자인 경험이 없어도 괜찮나요?", "a": "네, 기초 조작부터 차근차근 진행합니다."}, {"q": "생성된 이미지의 저작권은 어떻게 되나요?", "a": "도구별 저작권 정책을 수업에서 안내합니다."}, {"q": "포토샵과 병행 수강하면 더 좋은가요?", "a": "후가공을 위해 포토샵 기초가 있으면 더 유리합니다."}]}, "스마트 AI생활활용(시니어)": {"usp": "스마트폰·AI 도구로 일상이 달라진다! 시니어를 위한 맞춤 디지털 활용 수업", "desc": "50~70대 시니어를 위한 스마트폰 심화 활용, 카카오톡·유튜브·AI 도우미 활용, ChatGPT 기초 실습 등을 포함한 디지털 생활 활용 과정.", "target": "50~70대 시니어, 스마트폰·AI를 더 잘 활용하고 싶은 분, 자녀·손주와 디지털 격차를 줄이고 싶은 분", "curriculum": "4주 과정(주 2일 기준) · 1주: Gemini 설정·구글 계정 로그인·음성 대화·여행일정·건강식단 찾기 / 2주: 미드저니 인터페이스·기본 사용법 실습 / 3주: Gemini 이미지 제작·편집·합성·오래된 사진 복원·프로필 사진 제작 / 4주: 시나리오 제작·내 얼굴로 감동적인 영상 만들기 | 도구: Gemini, Midjourney", "price": "별도 문의", "prep": "없음", "points": ["시니어 눈높이 맞춤 속도 조절", "스마트폰 심화 기능 (사진 편집, 동영상 촬영)", "ChatGPT·Clova 등 AI 도우미 기초 실습", "반복 복습 중심 구성", "개인별 질문 충분한 시간 확보"], "effects": ["스마트폰·AI 도구 일상 활용 능력", "자녀·손주와 디지털 소통 원활", "디지털 생활에 대한 자신감 향상"], "faq": [{"q": "컴퓨터를 전혀 못 써도 괜찮나요?", "a": "네, 처음부터 천천히 진행합니다."}, {"q": "수강 연령 제한이 있나요?", "a": "50대 이상 시니어를 위한 과정이며, 나이 제한 없습니다."}, {"q": "스마트폰 기종에 무관하게 수업 가능한가요?", "a": "네, 안드로이드·아이폰 모두 대응합니다."}]}, "WRTN AI": {"usp": "국내 1위 AI 플랫폼 뤼튼(WRTN) 마스터! 콘텐츠·업무 자동화 실전 활용", "desc": "뤼튼(WRTN) AI 플랫폼을 활용한 콘텐츠 작성, 마케팅 카피, 보고서 자동 생성, SNS 포스팅 실습 과정. 국내 환경에 최적화된 AI 플랫폼 활용법.", "target": "블로그·SNS 운영자, 마케터, 직장인, AI 글쓰기에 관심 있는 분", "curriculum": "4주 과정 · 1주: AI 기초 이론(인공 신경망·머신러닝 원리·텍스트/이미지/영상 생성 원리) / 2주: 프롬프트 엔지니어링(효과적인 프롬프트 개발·자연어 처리 최적화) / 3주: 할루시네이션 대처법(명확한 지시·구체적 예시 전략) / 4주: AI 윤리(편향성·저작권·개인정보 보호·책임 있는 AI 활용) | 도구: Wrtn AI", "price": "별도 문의", "prep": "없음", "points": ["뤼튼 AI 전 기능 심층 실습", "블로그·SNS·보고서·마케팅 카피 자동 생성", "업종별 맞춤 AI 글쓰기 전략", "국내 검색 최적화(SEO) 연계 콘텐츠 작성", "무료·유료 기능 비교 및 활용 전략"], "effects": ["뤼튼 AI 플랫폼 활용 역량", "콘텐츠 제작 시간 대폭 단축", "AI 콘텐츠 마케팅 역량 확보"], "faq": [{"q": "뤼튼을 처음 써보는 사람도 괜찮나요?", "a": "네, 처음 사용하는 분에게도 적합한 과정입니다."}, {"q": "유료 구독이 필요한가요?", "a": "기본 기능은 무료, 심화 기능 활용 시 유료 여부를 수업에서 안내합니다."}, {"q": "다른 AI와 병행 사용 가능한가요?", "a": "네, 뤼튼과 다른 AI 도구를 함께 활용하는 전략도 다룹니다."}]}, "국가공인 AI자격증 - AICE": {"usp": "KT·한국경제신문 공인 AI 자격증! AICE Associate·Professional 취득 과정", "desc": "국가공인 AI 역량 인증 자격증인 AICE(AI Certificate for Everyone)의 Associate·Professional 레벨 취득을 위한 준비 과정. 실습 중심으로 시험 합격률을 높이는 커리큘럼.", "target": "AI 역량을 공식 인증받고 싶은 취준생·직장인, AICE 자격증 취득 희망자", "curriculum": "4주 과정(Python 기초 지식 필수) · 1주: AI 기초 이론·데이터 수집·정제(Pandas 데이터 로드·전처리 기초) / 2주: 데이터 전처리 심화(이상치 처리·IQR 기준·변수 그룹화) / 3주: 통계적 데이터 분석·시각화·선형 회귀 모델링 / 4주: 머신러닝·딥러닝 모델 완성(로지스틱 회귀·의사결정나무·랜덤포레스트)·기출 풀이 | 도구: Jupyter, AIDU 플랫폼, Pandas, Matplotlib, Seaborn", "price": "별도 문의", "prep": "없음", "points": ["AICE 시험 유형·출제 기준 완벽 분석", "Associate·Professional 레벨별 맞춤 대비", "실습 기반 AI 개념 이해", "시험 접수·일정 안내 포함", "합격 후 활용 전략까지"], "effects": ["AICE Associate·Professional 자격증 취득", "국가공인 AI 역량 인증으로 이력서 강화", "AI 기초 이론·실무 역량 동시 향상"], "faq": [{"q": "AICE는 어떤 자격증인가요?", "a": "KT·한국경제신문이 공동 개발한 AI 역량 국가공인 자격증입니다."}, {"q": "시험 난이도는 어떤가요?", "a": "Associate는 AI 기초 활용 수준, Professional은 실무 활용 수준입니다."}, {"q": "자격증 유효 기간이 있나요?", "a": "별도 유효 기간 없이 취득 즉시 이력서에 활용 가능합니다."}]}}}, "AI 디자인": {"longTail": ["후기", "가격", "비용", "초보", "추천", "커리큘럼", "취업", "포트폴리오", "자격증", "주말반"], "subs": {"취업/전문가 과정": ["시각디자이너 전문가(취업)과정", "AI크리에이터 - 시각편집"], "단과/소프트웨어": ["포토샵", "일러스트", "UX/UI 디자인", "Figma"]}, "courses": {"시각디자이너 전문가(취업)과정": {"usp": "포토샵·일러스트·인디자인 3종 세트! 취업 포트폴리오까지 완성하는 종합 과정", "desc": "그래픽 디자인 취업을 위한 핵심 소프트웨어(포토샵·일러스트·인디자인)를 실무 수준으로 익히고, 취업용 포트폴리오까지 완성하는 전문 과정. 취업 컨설팅 포함.", "target": "그래픽 디자인 취업 희망자, 디자인 비전공자 취업 준비생, 포트폴리오 없이 취업 준비 중인 분", "curriculum": "4단계 과정 · STEP 01: 디자인 툴 기본기(포토샵·일러스트 기초·이미지 보정·합성·벡터 그래픽 제작) / STEP 02: 시각 표현 심화(그래픽 아트웍·인포그래픽·타이포그래피) / STEP 03: 실무 디자인 프로젝트(브랜딩·편집디자인·패키지디자인 현업 중심 프로젝트) / STEP 04: 취업 포트폴리오 제작(완성 프로젝트 정리·취업용 포폴 구성) | 도구: Adobe Photoshop, Illustrator, InDesign", "price": "별도 문의", "prep": "없음", "points": ["포토샵·일러스트·인디자인 실무 수준 습득", "실제 업무 프로세스 기반 과제 진행", "취업 포트폴리오 완성 및 피드백", "취업 컨설팅·이력서 클리닉 포함", "GTQ 자격증 병행 준비 가능"], "effects": ["그래픽 디자이너 취업 준비 완성", "디자인 3종 소프트웨어 실무 활용", "취업용 포트폴리오 완성"], "faq": [{"q": "디자인 전공이 아니어도 취업이 가능한가요?", "a": "네, 포트폴리오 완성도가 핵심이므로 비전공자도 충분히 가능합니다."}, {"q": "취업 연계 서비스가 있나요?", "a": "네, 이력서 클리닉·취업 컨설팅을 함께 제공합니다."}, {"q": "GTQ 자격증도 함께 준비할 수 있나요?", "a": "네, 커리큘럼 내에서 GTQ 대비가 가능합니다."}]}, "AI크리에이터 - 시각편집": {"usp": "AI 이미지 생성 + 포토샵 편집의 완벽한 결합! 실무 비주얼 크리에이터 양성", "desc": "Midjourney·DALL-E 등 AI 이미지 생성 도구와 포토샵을 결합해 광고·SNS·브랜딩 소재를 제작하는 하이브리드 실무 과정.", "target": "AI 이미지를 디자인에 실무 적용하고 싶은 분, 기존 디자이너로 AI 역량을 추가하고 싶은 분, 마케터·SNS 운영자", "curriculum": "4주 과정 · 1주: ChatGPT·Gemini로 콘텐츠 기획·카피·스토리보드 제작 / 2주: Midjourney로 무드보드·키비주얼·콘텐츠 이미지 생성 / 3주: Runway·Flow로 숏폼·광고·SNS용 영상 소스 제작 / 4주: 기획서·이미지·영상 소재 통합 포트폴리오 완성 | 도구: ChatGPT, Gemini, Midjourney, Runway, Flow, Photoshop", "price": "별도 문의", "prep": "없음", "points": ["AI 이미지 생성 → 포토샵 후편집 실전 워크플로", "광고·SNS·브랜딩 소재 실무 제작", "저작권·AI 생성물 활용 가이드", "AI 도구 업데이트 트렌드 반영", "포트폴리오 바로 활용 가능한 결과물"], "effects": ["AI+포토샵 결합 비주얼 제작 역량", "SNS·마케팅 소재 즉시 적용", "AI 크리에이터 포트폴리오 완성"], "faq": [{"q": "포토샵 기초가 없어도 수강 가능한가요?", "a": "포토샵 기초 지식이 있으면 더 수월하지만, 기초부터 병행 안내합니다."}, {"q": "어떤 AI 도구를 사용하나요?", "a": "Midjourney, DALL-E, Adobe Firefly 등을 활용합니다."}, {"q": "결과물의 상업적 활용이 가능한가요?", "a": "도구별 약관을 기준으로 상업 활용 가이드를 안내합니다."}]}, "포토샵": {"usp": "실무에서 가장 많이 쓰는 포토샵! 기초 누끼부터 리터칭·합성까지 완전 정복", "desc": "Adobe Photoshop의 핵심 기능(선택 도구, 레이어, 마스크, 리터칭, 합성, 색보정 등)을 실무 예제로 학습하는 과정. 고급 이미지 합성과 광고 리터칭 기술까지 마스터.", "target": "포토샵을 처음 배우는 분, 기초를 제대로 다지고 싶은 직장인·취준생·소상공인", "curriculum": "8주 과정(기초 4주 + 심화 4주) · 기초: 1주 인터페이스·툴·레이어 패널 → 2주 선택 도구·마스킹 기법 → 3주 색보정·커브·채도·레벨 → 4주 레이어 스타일·블렌딩 모드·필터 / 심화: 5주 고급 선택·채널 마스크·패스 → 6주 주파수 분리·닷지/번 프로 리터칭 → 7주 광고 합성 워크플로·다중 이미지 합성 → 8주 Camera RAW 필터 고급 색보정", "price": "별도 문의", "prep": "없음", "points": ["선택 도구·누끼·마스크·레이어 기초 완벽 이해", "사진 리터칭·보정·합성 실무 예제", "SNS·광고·출판 등 용도별 저장 포맷 안내", "GTQ 자격증 연계 준비 가능", "평일·주말반 다양한 시간대 운영"], "effects": ["포토샵 실무 활용 역량", "SNS 콘텐츠·마케팅 소재 직접 제작", "GTQ 자격증 취득 기반 마련"], "faq": [{"q": "포토샵을 전혀 써본 적 없어도 되나요?", "a": "네, 기초부터 차근차근 진행합니다."}, {"q": "GTQ 시험 준비도 같이 되나요?", "a": "네, 포토샵 과정과 GTQ 시험 대비를 연계할 수 있습니다."}, {"q": "어떤 버전의 포토샵을 사용하나요?", "a": "최신 Adobe CC 버전을 기준으로 수업합니다."}]}, "일러스트": {"usp": "벡터 드로잉의 핵심! 로고·캐릭터·아이콘을 직접 만드는 일러스트레이터 완전 정복", "desc": "Adobe Illustrator의 핵심 기능(펜 툴, 도형, 패스, 타이포그래피, 패턴 등)을 활용해 로고, 캐릭터, 아이콘, 인포그래픽을 제작하는 과정.", "target": "로고·브랜딩 디자인에 관심 있는 분, 캐릭터·일러스트 작업을 하고 싶은 분, GTQ 일러스트 자격증 준비생", "curriculum": "8주 과정(기초 4주 + 심화 4주) · 기초: 인터페이스 적응·기초 도형 → 펜 툴 마스터 → 색상 시스템·그레이디언트 → 타이포그래피 기초 / 심화: 고급 패스·이펙트 → 타이포그래피 심화 → 심볼·패턴 시스템 → CI/BI 브랜드 아이덴티티 완성", "price": "별도 문의", "prep": "없음", "points": ["펜 툴 마스터 — 벡터 드로잉 핵심 기술", "로고·캐릭터·아이콘·인포그래픽 실무 예제", "포토샵과의 연계 활용 방법", "GTQI(GTQ 일러스트) 자격증 연계 준비", "실무 포트폴리오 바로 활용 가능한 결과물"], "effects": ["일러스트레이터 벡터 디자인 역량", "브랜딩·로고·캐릭터 직접 제작", "GTQ 일러스트(GTQI) 자격증 취득 기반"], "faq": [{"q": "그림을 잘 못 그려도 할 수 있나요?", "a": "네, 툴을 활용하는 것이 핵심이라 그림 실력과 무관합니다."}, {"q": "포토샵과 어떻게 다른가요?", "a": "포토샵은 사진 편집, 일러스트는 벡터(확대해도 깨지지 않는 그림) 제작에 특화됩니다."}, {"q": "GTQI 자격증도 준비 가능한가요?", "a": "네, 일러스트 과정과 GTQI 시험 대비를 연계할 수 있습니다."}]}, "UX/UI 디자인": {"usp": "앱·웹 화면 설계의 모든 것! UX 리서치부터 UI 시안까지 실무 완성", "desc": "사용자 경험(UX) 설계와 사용자 인터페이스(UI) 디자인의 원리를 배우고, Figma를 활용해 실제 앱·웹 화면을 설계하는 실무 과정.", "target": "UX/UI 디자이너 취업 희망자, 앱·웹 기획자, 개발자로서 UI 이해를 높이고 싶은 분", "curriculum": "별도 문의", "price": "별도 문의", "prep": "없음", "points": ["UX 리서치·사용자 인터뷰·페르소나 설계", "와이어프레임·프로토타입 제작", "Figma 기반 UI 시안 완성", "취업 포트폴리오 완성 피드백", "실제 앱·웹 사례 분석 포함"], "effects": ["UX 설계·UI 디자인 실무 역량", "UX/UI 취업용 포트폴리오 완성", "UX/UI 디자이너·서비스 기획자 진로"], "faq": [{"q": "디자인 경험이 없어도 괜찮나요?", "a": "UX는 논리적 사고가 중심이라 디자인 전공 아니어도 가능합니다."}, {"q": "Figma는 유료인가요?", "a": "기본 기능은 무료로 사용 가능합니다."}, {"q": "개발 지식도 있어야 하나요?", "a": "기본적인 이해가 있으면 유리하지만 필수는 아닙니다."}]}, "Figma": {"usp": "협업 디자인 툴의 표준! 와이어프레임·프로토타입·컴포넌트 시스템 완전 정복", "desc": "UI/UX 디자인의 산업 표준 도구인 Figma의 핵심 기능을 실습하는 과정. 와이어프레임, 오토 레이아웃, 컴포넌트, 프로토타입, 팀 협업 기능까지.", "target": "Figma를 배우고 싶은 디자이너·기획자, UX/UI 취업 준비생, 팀 협업 디자인이 필요한 분", "curriculum": "4주 과정 · 1주: 인터페이스·프레임·기본 오브젝트·색상·폰트·단축키·카드 UI 제작 / 2주: 오토레이아웃·Constraints·반응형 컴포넌트 구조 / 3주: 컴포넌트 시스템·Variants·스타일·토큰 관리 / 4주: 프로토타이핑·인터랙션·Dev Mode 핸드오프·최종 협업 결과물", "price": "별도 문의", "prep": "없음", "points": ["Figma 기초부터 컴포넌트 시스템 설계까지", "오토 레이아웃·Variants·인터랙션 설정", "실무 협업 기능(댓글·버전 관리) 체험", "프로토타입으로 실제 앱처럼 시연 구현", "포트폴리오 즉시 활용 결과물 완성"], "effects": ["Figma 실무 활용 역량", "Figma 기반 UX/UI 포트폴리오 완성", "디자인팀 협업 즉시 투입 가능"], "faq": [{"q": "Figma를 처음 사용하는 사람도 괜찮나요?", "a": "네, 완전 초보자도 따라갈 수 있게 구성됩니다."}, {"q": "무료로 사용할 수 있나요?", "a": "기본 기능은 무료입니다. 유료 기능은 수업에서 안내합니다."}, {"q": "UX/UI 과정과 병행하면 좋은가요?", "a": "네, UX/UI 설계와 Figma 툴 활용을 함께 배우면 시너지가 큽니다."}]}}}, "AI 모션·CG": {"longTail": ["후기", "가격", "비용", "초보", "추천", "커리큘럼", "취업", "포트폴리오", "유튜브", "주말반"], "subs": {"취업/전문가 과정": ["모션그래픽디자이너 전문가(취업)과정", "AI크리에이터 - 유튜브"], "단과/소프트웨어": ["프리미어 프로(영상 편집)", "애프터이펙트"]}, "courses": {"모션그래픽디자이너 전문가(취업)과정": {"usp": "프리미어·애프터이펙트·모션그래픽 3종 세트! 영상 디자이너 취업 완성 과정", "desc": "영상 편집(프리미어 프로)·모션그래픽(애프터이펙트)·비주얼 효과를 종합적으로 배우고 취업 포트폴리오까지 완성하는 전문 과정.", "target": "모션그래픽·영상 디자이너 취업 희망자, 영상 제작 비전공자 취업 준비생", "curriculum": "6~12개월 과정 · STEP 01: 영상 편집 & 2D 모션그래픽(프리미어 프로 기초·애프터이펙트 트렌디한 2D 모션 감각) / STEP 02: 3D 모션그래픽 기초(Cinema 4D·모그래프(MoGraph)·이펙터·유기적 모션 제어) / STEP 03: 라이팅 & 렌더링 완성(Octane Render GPU 기반·PBR 텍스처링·사실적 비주얼) / STEP 04: 파이널 포트폴리오(기획·스토리보드·프리비즈·본 제작 취업용 완성) | 도구: Photoshop, Illustrator, Premiere Pro, After Effects, Cinema 4D, Octane Render", "price": "별도 문의", "prep": "없음", "points": ["프리미어 프로·애프터이펙트 실무 수준 습득", "모션그래픽 실무 예제(타이틀·인포그래픽·로고 애니메이션)", "취업용 영상 포트폴리오 완성", "취업 컨설팅·이력서 클리닉 포함", "유튜브·광고·방송 등 분야별 실무 적용"], "effects": ["모션그래픽 디자이너 취업 준비 완성", "영상 편집·모션 그래픽 실무 역량", "취업용 영상 포트폴리오 완성"], "faq": [{"q": "영상 편집 경험이 없어도 취업 가능한가요?", "a": "네, 포트폴리오 완성도가 핵심입니다."}, {"q": "어떤 분야에 취업할 수 있나요?", "a": "광고 제작사, 방송사, 유튜브 채널, 기업 홍보팀 등에 지원 가능합니다."}, {"q": "수업에서 사용하는 소프트웨어 버전은?", "a": "최신 Adobe CC 버전을 사용합니다."}]}, "AI크리에이터 - 유튜브": {"usp": "AI로 유튜브 채널 처음부터 끝까지! 기획·영상제작·편집·썸네일까지 원스톱", "desc": "AI 도구를 활용해 유튜브 채널을 기획하고, 영상 촬영·편집·썸네일 제작·SEO 최적화까지 유튜브 크리에이터로서 필요한 모든 것을 배우는 실전 과정.", "target": "유튜브 채널을 시작하고 싶은 분, 영상 콘텐츠 제작에 관심 있는 분, AI를 활용해 혼자 영상을 만들고 싶은 분", "curriculum": "4주 과정 · 1주: AI 영상 제작 흐름 이해·콘텐츠 기획·영상 프롬프트 작성법 / 2주: Gemini·GPT·Flow로 이미지·영상 소스 제작(숏폼의 기술) / 3주: CapCut으로 AI 생성 영상 편집·완성도 향상 / 4주: 유튜브 쇼츠·릴스·홍보 영상 최종 결과물 제작 | 도구: ChatGPT, Gemini, Veo, CapCut, Vrew", "price": "별도 문의", "prep": "없음", "points": ["채널 기획·콘셉트·타겟 설정부터 시작", "AI 보이스·자막·편집 도구 활용", "썸네일 디자인(포토샵·AI 도구) 실습", "유튜브 SEO·알고리즘 이해", "수강 완료 후 실제 채널 업로드까지"], "effects": ["AI 기반 유튜브 영상 제작 역량", "유튜브 채널 즉시 운영 가능", "크리에이터·영상 콘텐츠 마케터 진로"], "faq": [{"q": "카메라가 없어도 괜찮나요?", "a": "스마트폰으로도 충분히 제작 가능하도록 안내합니다."}, {"q": "편집 경험이 전혀 없어도 되나요?", "a": "네, 처음부터 단계적으로 진행합니다."}, {"q": "수강 후 실제 채널을 바로 시작할 수 있나요?", "a": "네, 수업 중 채널 개설·업로드까지 완료합니다."}]}, "프리미어 프로(영상 편집)": {"usp": "업계 표준 영상 편집 툴! 유튜브·광고·SNS 영상을 직접 편집한다", "desc": "Adobe Premiere Pro를 활용한 영상 편집의 핵심 기능(컷 편집, 색보정, 오디오 처리, 자막 삽입, 내보내기)을 실무 예제로 학습하는 과정.", "target": "영상 편집을 처음 배우는 분, 유튜브·SNS 영상을 직접 편집하고 싶은 분, 영상 편집 직무 취업 준비생", "curriculum": "4주 과정 · 1주: 비디오 에디팅 에센셜(인터페이스·타임라인·기초 컷) / 2주: 다이내믹 컷 편집(트랜지션·멀티캠) / 3주: 타이포그래피 & 캡션(자막·모션 텍스트) / 4주: 오디오 믹싱 & 컬러 그레이딩 | 도구: Adobe Premiere Pro + Media Encoder", "price": "별도 문의", "prep": "없음", "points": ["컷 편집·트랜지션·자막·색보정 기초~실무", "유튜브·SNS·광고 영상 포맷별 내보내기", "오디오 믹싱·효과음 삽입", "실습 결과물 즉시 업로드 가능", "애프터이펙트 연계 활용 안내"], "effects": ["프리미어 프로 영상 편집 실무 역량", "유튜브·SNS 영상 직접 편집·업로드", "영상 편집 직무 취업 기반"], "faq": [{"q": "영상 편집을 처음 해봐도 괜찮나요?", "a": "네, 기초부터 진행합니다."}, {"q": "어떤 컴퓨터 사양이 필요한가요?", "a": "학원 PC를 사용하거나, 개인 노트북 사양은 문의 시 안내합니다."}, {"q": "애프터이펙트도 배울 수 있나요?", "a": "프리미어 과정 후 애프터이펙트 과정으로 연계 수강을 권장합니다."}]}, "애프터이펙트": {"usp": "모션그래픽·특수효과의 핵심 툴! 타이틀·로고 애니메이션부터 시각효과까지", "desc": "Adobe After Effects를 활용한 모션그래픽, 로고 애니메이션, 타이틀 시퀀스, 시각 효과(VFX) 기초를 실무 예제로 학습하는 과정.", "target": "모션그래픽에 관심 있는 분, 영상에 움직이는 그래픽·효과를 추가하고 싶은 분, 모션 디자이너 취업 준비생", "curriculum": "8주 과정 · 1-2주: AE 인터페이스·컴포지션·레이어 구조·키프레임 애니메이션 기초 / 3-4주: 키네틱 타이포그래피·레이어 스타일·그래프 에디터(모션 리듬) / 5-6주: 3D 레이어 환경·카메라 워크·트래킹·마스킹 합성 / 7-8주: 방송 타이틀 제작·Duik Bassel 캐릭터 리깅·VFX 최적화", "price": "별도 문의", "prep": "없음", "points": ["키프레임 애니메이션·타이밍 완벽 이해", "로고·텍스트·도형 애니메이션 실무 제작", "합성·마스크·트래킹 기초", "프리미어 프로와 다이나믹 링크 연계", "취업용 모션 포트폴리오 결과물 완성"], "effects": ["애프터이펙트 모션그래픽 실무 역량", "모션 포트폴리오 결과물 완성", "모션그래픽 디자이너 취업 기반"], "faq": [{"q": "프리미어 프로를 먼저 배워야 하나요?", "a": "프리미어 기초가 있으면 연계가 수월하지만, 독립 수강도 가능합니다."}, {"q": "수업에서 어떤 결과물을 만드나요?", "a": "로고 애니메이션, 타이틀 시퀀스, 인포그래픽 모션 등을 제작합니다."}, {"q": "특수효과(VFX) 작업도 배우나요?", "a": "기초 합성·트래킹 수준의 VFX를 다룹니다."}]}}}, "AI 웹툰·드로잉": {"longTail": ["후기", "가격", "비용", "초보", "추천", "커리큘럼", "취업", "포트폴리오", "이모티콘", "주말반"], "subs": {"웹툰·AI 창작": ["웹툰&AI어시스트", "AI 아트 크리에이터", "캐릭터 콘텐츠 크리에이터 과정(이모티콘, 굿즈)"], "드로잉 기초": ["아이패드 드로잉"]}, "courses": {"웹툰&AI어시스트": {"usp": "현업 웹툰 작가가 직접 개발! 스토리부터 원고 완성까지 올인원 과정", "desc": "현업 웹툰 작가 개발 커리큘럼으로 클립스튜디오·스케치업·AI 어시스트를 단계적으로 습득. 공모전 투고, 스튜디오 취업, 대학 진학용 포트폴리오 완성.", "target": "드로잉 기초 보유자, 웹툰 작가 지망생, 스튜디오 취업 준비생, 대학 진학 희망자", "curriculum": "3~6개월 과정(개인 목표에 따라 조정) · STEP 01: 스토리 기획·세계관 설계(캐릭터·서사 구조) / STEP 02: 콘티 구성·연출 디렉션(컷 분할·시선 유도) / STEP 03: AI 어시스트 기반 제작 워크플로(생성형 AI로 배경·소품·레퍼런스 제작) / STEP 04: 웹툰 프로젝트·포트폴리오 구축(단편 완성·취업·데뷔용 포폴) | 도구: 클립스튜디오, 스케치업, AI 어시스트", "price": "별도 문의", "prep": "없음", "points": ["실습·피드백 중심 현장 수업", "전담 멘토 1:1 케어", "AI 어시스트로 작업 효율 향상", "취업·공모전·데뷔 맞춤 포트폴리오", "AI·실무 트렌드 반영 과정"], "effects": ["웹툰 기획부터 원고 완성까지 전 과정 역량", "취업·데뷔·공모전용 포트폴리오 완성", "웹툰 스튜디오 취업·독립 데뷔 준비"], "faq": [{"q": "드로잉을 전혀 못해도 수강 가능한가요?", "a": "기초 드로잉 역량(선 정리·명암·인체·투시 기초)이 전제됩니다. 기초가 없다면 선수과목(최소 3개월) 수강을 권장합니다."}, {"q": "AI 어시스트가 원고 작업을 모두 대신하나요?", "a": "AI는 어려운 부분(엑스트라·군중·배경 소품 등)에 제한적으로 활용하고, 최대한 직접 작업하도록 지도합니다."}, {"q": "1:1 맞춤 수업 방식은?", "a": "합반 수업이지만 수강생 각자의 수준과 목표에 따라 진도와 피드백이 개별적으로 진행됩니다."}]}, "AI 아트 크리에이터": {"usp": "AI 이미지 생성 + 디지털 드로잉의 결합! 나만의 아트워크를 만드는 과정", "desc": "Midjourney·Stable Diffusion 등 AI 이미지 도구와 디지털 드로잉(Procreate·Photoshop)을 결합해 나만의 아트워크, 일러스트, 캐릭터를 제작하는 창작 과정.", "target": "그림 그리는 것을 좋아하는 분, AI와 디지털 아트를 결합하고 싶은 분, 아트 포트폴리오를 만들고 싶은 분", "curriculum": "1개월 이상 과정 · STEP 01: AI 아트워크 제작 기초(생성형 AI 기본 기능·다양한 아트 스타일 분석) / STEP 02: 스타일 연출 프롬프트 응용(구도·색감·분위기·아트 스타일별 프롬프트 작성) / STEP 03: AI 디지털 리터칭 & 후반 작업(색감·디테일·완성도 향상 보정 기법) / STEP 04: 시리즈 아트 디렉션(하나의 세계관 기반 일관된 스타일 작품 기획·제작) | 도구: ChatGPT, Gemini, Midjourney, ComfyUI, Photoshop, Clip Studio Paint", "price": "별도 문의", "prep": "없음", "points": ["AI 이미지 생성 → 디지털 드로잉 후작업 워크플로", "나만의 아트 스타일 개발", "SNS·굿즈·판매 플랫폼 활용 전략", "저작권·AI 생성물 활용 가이드", "포트폴리오 즉시 활용 결과물"], "effects": ["AI+디지털 드로잉 창작 역량", "개인 아트 포트폴리오 완성", "SNS·굿즈 제작·판매 플랫폼 적용"], "faq": [{"q": "그림 실력이 부족해도 괜찮나요?", "a": "AI 도구를 활용하므로 그림 실력과 무관하게 아트워크 제작이 가능합니다."}, {"q": "아이패드가 없어도 되나요?", "a": "학원 장비를 활용하거나, 대안 도구를 안내합니다."}, {"q": "수강 후 결과물을 판매할 수 있나요?", "a": "저작권 가이드라인에 따라 플랫폼 판매가 가능합니다."}]}, "캐릭터 콘텐츠 크리에이터 과정(이모티콘, 굿즈)": {"usp": "카카오·라인 이모티콘부터 굿즈 제작까지! 캐릭터로 수익 만드는 실전 과정", "desc": "나만의 캐릭터를 개발하고 카카오·라인 이모티콘 제안, 굿즈(스티커·메모지·에코백) 디자인까지 완성하는 실전 크리에이터 과정.", "target": "이모티콘 작가가 꿈인 분, 캐릭터 굿즈를 만들고 싶은 분, 부업·N잡을 원하는 디자인 입문자", "curriculum": "2개월 과정 · 1주: 캐릭터 IP 기획·이모티콘·굿즈 콘셉트 디자인 / 2주: 이모티콘 제작·감정 표현 기법 집중 실습 / 3주: 굿즈 디자인·인쇄 사양·제품별 발주 실무 / 4주: 개인 브랜딩·SNS 마케팅·포트폴리오 프로젝트 완성 | 도구: Clip Studio Paint, Adobe Photoshop, Procreate, 생성형 AI 도구", "price": "별도 문의", "prep": "없음", "points": ["캐릭터 개발 기초 — 형태·표정·컬러 시스템", "카카오·라인 이모티콘 제안 과정 실습", "굿즈 디자인·인쇄 발주 실무", "플리마켓·온라인 판매 전략", "이모티콘 심사 통과 전략 분석"], "effects": ["캐릭터 디자인·이모티콘 제작 역량", "이모티콘 제안·굿즈 판매 즉시 적용", "이모티콘 작가·캐릭터 디자이너 진로"], "faq": [{"q": "그림을 잘 못 그려도 이모티콘을 만들 수 있나요?", "a": "네, 단순한 캐릭터로도 이모티콘 제안이 가능합니다."}, {"q": "이모티콘 심사 통과가 어렵다고 들었는데요?", "a": "심사 기준 분석과 합격 전략을 수업에서 집중적으로 다룹니다."}, {"q": "굿즈 제작 비용은 얼마나 드나요?", "a": "소량 제작 플랫폼 활용 시 최소 비용으로 시작 가능합니다."}]}, "아이패드 드로잉": {"usp": "아이패드 하나로 프로 일러스트레이터처럼! Procreate 기초부터 작품 완성까지", "desc": "아이패드와 Apple Pencil, Procreate 앱을 활용해 디지털 드로잉 기초, 캐릭터 일러스트, 풍경화, 로고 등을 제작하는 실습 과정.", "target": "아이패드 드로잉을 시작하고 싶은 분, 취미 일러스트에 관심 있는 분, SNS에 직접 그린 그림을 올리고 싶은 분", "curriculum": "1개월 이상 과정 · 1주: 아이패드·Procreate 기본 기능(브러시·레이어·색상) 마스터 / 2주: 드로잉 기초·관찰력(식물·사물·정물 다양한 브러시 표현) / 3주: 색감·구도 활용 감성 일러스트 제작·개인 피드백 / 4주: 개인 드로잉 스타일 개발·완성 작품 제작 | 도구: iPad, Procreate, Apple Pencil", "price": "별도 문의", "prep": "없음", "points": ["Procreate 핵심 기능 완벽 이해", "브러시·레이어·마스킹 기초", "캐릭터·풍경·일러스트 실습 예제", "SNS 공유·출력·굿즈 제작 연계", "개인 아트 스타일 발전 방향 안내"], "effects": ["아이패드 Procreate 드로잉 역량", "취미 일러스트 즐길 수 있는 능력", "SNS·굿즈 활용 드로잉 결과물"], "faq": [{"q": "아이패드가 없어도 수강 가능한가요?", "a": "학원 장비 대여 가능 여부는 문의 시 안내합니다."}, {"q": "그림을 전혀 못 그려도 되나요?", "a": "네, 기초 선 긋기부터 차근차근 진행합니다."}, {"q": "Procreate 앱은 별도 구매해야 하나요?", "a": "네, Procreate는 유료 앱입니다(일회성 구매)."}]}}}, "AI 인테리어·제품": {"longTail": ["후기", "가격", "비용", "초보", "추천", "커리큘럼", "취업", "포트폴리오", "자격증", "오토캐드"], "subs": {"취업/전문가 과정": ["인테리어/기계제품 취업과정"], "단과/소프트웨어": ["오토캐드", "스케치업 프로"], "자격증": ["실내건축자격증"]}, "courses": {"인테리어/기계제품 취업과정": {"usp": "AutoCAD·3ds Max·스케치업 실무 완성! 인테리어·제품 디자인 취업 전문 과정", "desc": "인테리어·제품 디자인 분야 취업을 위한 핵심 소프트웨어(AutoCAD, 3ds Max, SketchUp)를 실무 수준으로 익히고 취업 포트폴리오를 완성하는 과정.", "target": "인테리어·제품 디자이너 취업 희망자, 건축·인테리어 비전공자 취업 준비생", "curriculum": "6~12개월 과정 · STEP 01: AI 컨셉 솔루션(생성형 AI 무드보드·초기 컨셉 도출·프롬프트 엔지니어링으로 디자인 데이터 최적화) / STEP 02: 정밀 설계 실무(도면 설계·고품질 3D 모델링·텍스처링·라이팅) / STEP 03: 스마트 워크플로우(AI 기술로 반복 업무 자동화·실무 파이프라인 정립) / STEP 04: 취창업 포트폴리오(현업 선호형 인테리어/제품 프로젝트 완성) | 도구: Midjourney, AI LLM, AutoCAD, 3ds Max, SketchUp, Inventor, Rhino, Photoshop", "price": "별도 문의", "prep": "없음", "points": ["AutoCAD·3ds Max·SketchUp 실무 수준 습득", "도면 작성부터 3D 렌더링까지", "취업 포트폴리오 완성 피드백", "실내건축기능사 자격증 병행 준비 가능", "취업 컨설팅·이력서 클리닉 포함"], "effects": ["인테리어·제품 디자이너 취업 준비 완성", "CAD·3D 소프트웨어 실무 활용", "취업용 포트폴리오 완성"], "faq": [{"q": "건축 전공이 아니어도 취업 가능한가요?", "a": "네, 포트폴리오와 실무 역량이 핵심입니다."}, {"q": "실내건축기능사 자격증도 준비할 수 있나요?", "a": "네, 병행 준비가 가능합니다."}, {"q": "어떤 분야에 취업할 수 있나요?", "a": "인테리어 업체, 건설사, 제품 디자인 업체 등에 지원 가능합니다."}]}, "오토캐드": {"usp": "건축·인테리어·기계 설계의 기본! AutoCAD 2D 도면 작성 완전 정복", "desc": "건축·인테리어·기계 분야에서 필수인 AutoCAD를 활용한 2D 도면 작성 기초~실무 과정. 산업 표준 규격에 맞는 도면 작도 능력과 도면 해독 실무 설계 역량 습득.", "target": "인테리어·건축·기계 취업 희망자, 도면을 그려야 하는 직장인, 실내건축기능사 준비생", "curriculum": "8주 과정 · 1주: UI 적응·기초 명령어(선·원·다각형) / 2주: 편집 명령어·도면층(Layer) 제어 / 3주: 치수 기입·해치(Hatch) / 4주: 블록(Block) 활용·출력(Plot) 시스템 / 5주: 실내건축 평면도 기초 / 6주: 입면도·천장도 작도 / 7주: CAT 자격증 대비·등각투상도 / 8주: 기계 도면 심화·모의시험", "price": "별도 문의", "prep": "없음", "points": ["AutoCAD 핵심 명령어 체계적 학습", "2D 도면 작성·편집·층 관리·치수 입력", "실무 도면 사례 예제 실습", "출력·PDF 변환 실무 적용", "실내건축기능사 도면 작업 연계"], "effects": ["AutoCAD 2D 도면 작성 실무 역량", "인테리어·건축·기계 취업 기반", "실내건축기능사 시험 도면 작업 대비"], "faq": [{"q": "완전 초보도 배울 수 있나요?", "a": "네, 명령어 기초부터 차근차근 진행합니다."}, {"q": "어떤 업무에 활용되나요?", "a": "인테리어 도면, 건축 평면도, 기계 설계도 등에 활용됩니다."}, {"q": "3D 작업도 배우나요?", "a": "2D 도면 과정이며, 3D는 3ds Max나 스케치업 과정에서 다룹니다."}]}, "스케치업 프로": {"usp": "인테리어 3D 모델링의 핵심 툴! 빠르게 공간을 시각화하는 스케치업 실무 과정", "desc": "SketchUp Pro를 활용한 인테리어·건축 3D 공간 모델링 과정. 실무 설계 사무소의 80% 이상이 활용하는 표준 툴로, 기초 모델링부터 V-Ray·Enscape 렌더링까지.", "target": "인테리어 디자이너·학생, 3D 공간 시각화가 필요한 분, AutoCAD 후 3D로 확장하고 싶은 분", "curriculum": "8주 과정 · 1-2주: 기초 모델링·Push/Pull 기법·CAD 도면 연계 정밀 모델 / 3-4주: 3D Warehouse 가구 배치·재질 매핑·카메라 포지셔닝·씬 연출 / 5-6주: 비정형 고급 모델링·V-Ray·Enscape 조명 설정 / 7-8주: PBR 재질·LayOut 프레젠테이션 제작 | 도구: SketchUp Pro, V-Ray, Enscape", "price": "별도 문의", "prep": "없음", "points": ["SketchUp 기초 모델링부터 공간 완성까지", "재질·텍스처·조명 설정", "V-Ray·Enscape 렌더링 기초 연계", "실제 인테리어 사례 기반 실습", "AutoCAD 도면 연계 3D 변환 방법"], "effects": ["인테리어 3D 모델링·렌더링 역량", "클라이언트 제안용 3D 시안 제작", "인테리어 디자이너·공간 설계 직무 역량"], "faq": [{"q": "AutoCAD를 먼저 배워야 하나요?", "a": "AutoCAD 기초가 있으면 도움이 되지만 독립 수강도 가능합니다."}, {"q": "무료 버전과 유료 버전의 차이는?", "a": "수업에서 버전별 기능 차이를 안내합니다."}, {"q": "렌더링은 별도 프로그램이 필요한가요?", "a": "V-Ray·Enscape 렌더 플러그인을 연계 활용합니다."}]}, "실내건축자격증": {"usp": "실내건축기능사 자격증 취득! CAD 도면 작성부터 실기 시험까지 한 번에", "desc": "실내건축기능사 자격증 취득을 위한 필기·실기 대비 과정. AutoCAD를 활용한 도면 작성 실기와 필기(건축 구조·시공·재료) 이론을 함께 준비.", "target": "실내건축기능사 자격증 취득 희망자, 인테리어 취업 준비생, 자격증으로 스펙을 쌓고 싶은 분", "curriculum": "12주(3개월) 과정 · 1주: 공간 설계 이해·AutoCAD 기본 세팅·도면 기초 / 2주: 평면도(Floor Plan) 작도 핵심 / 3주: 천장도·입면도(Elevation) / 4주: 단면도·상세도(Detail) / 5주: SketchUp 3D 공간 기초 / 6주: 가구 모델링·재질 매핑 / 7주: 실내 조명 계획·카메라 연출 / 8주: 도면과 3D 결합(LayOut) / 9주: 기출 유형 분석·시간 단축 전략 / 10주: 실무형 도면 세트 완성 / 11주: 출력 세팅·최종 도면 검수 / 12주: 실전 모의고사·1:1 코칭 | 도구: AutoCAD, SketchUp Pro", "price": "별도 문의", "prep": "없음", "points": ["실내건축기능사 필기·실기 동시 대비", "AutoCAD 활용 도면 작성 실기 집중 훈련", "시험 출제 기준 분석 기반 맞춤 강의", "실기 시험 시간 내 완성 연습", "합격 후 취업 연계 안내"], "effects": ["실내건축기능사 자격증 취득", "인테리어 취업 필수 자격증 확보", "AutoCAD 도면 작성·실무 역량"], "faq": [{"q": "인테리어 경험 없이 자격증 취득이 가능한가요?", "a": "네, 기초부터 시험 대비까지 체계적으로 진행합니다."}, {"q": "필기 합격 후 실기를 준비하나요?", "a": "네, 필기와 실기를 순차·병행 준비합니다."}, {"q": "시험 일정은 어떻게 되나요?", "a": "한국산업인력공단 일정 기준으로 접수 안내를 드립니다."}]}}}, "자격증": {"longTail": ["후기", "가격", "비용", "초보", "추천", "커리큘럼", "합격", "난이도", "준비물", "주말반"], "subs": {"컴퓨터·사무": ["컴퓨터활용능력 1급 / 2급", "MOS (Microsoft Office Specialist)"], "그래픽·디자인": ["GTQ / GTQI", "ACP (Adobe Certified Professional)"], "회계·세무": ["회계실무기초과정 / 세무실무중급 / 세무실무전문가과정"]}, "courses": {"컴퓨터활용능력 1급 / 2급": {"usp": "대한상공회의소 공인 국가기술자격! 취업·이직·승진의 필수 자격증", "desc": "컴퓨터활용능력 1급(스프레드시트·데이터베이스) 및 2급(스프레드시트) 취득을 위한 필기·실기 병행 대비 과정. 엑셀·액세스 실무 능력을 자격증으로 공식 인증.", "target": "취업준비생, 직장인(승진·이직 목적), 엑셀을 제대로 배우고 싶은 분", "curriculum": "4주 과정(1급 기준) · 1주: 엑셀 기초(배열 수식·복합 조건·INDEX/MATCH 함수) / 2주: 엑셀 자동화(VBA·사용자 정의 함수·피벗 테이블) / 3주: 액세스 DB 설계·테이블 관계·폼·보고서 / 4주: 고급 쿼리(매개변수·크로스탭·불일치 검색)·연속 모의시험 | 선수 조건: 컴활 2급 수준의 엑셀 기본 기능 이해 권장", "price": "별도 문의", "prep": "없음", "points": ["필기·실기 동시 대비 체계적 구성", "출제 기준 분석 기반 핵심 정리 자료 제공", "실기 시험 환경 동일한 실습 PC", "단기 취득 가능한 집중 커리큘럼", "시험 일정·접수 방법 안내 포함"], "effects": ["컴퓨터활용능력 1급·2급 자격증 취득", "취업·이직·승진에 활용 가능한 필수 스펙", "엑셀·액세스 실무 활용 역량"], "faq": [{"q": "1급과 2급 중 어떤 걸 먼저 준비해야 하나요?", "a": "2급을 먼저 취득 후 1급을 준비하는 것이 일반적입니다."}, {"q": "엑셀을 전혀 모르는데 바로 자격증 과정을 들어도 되나요?", "a": "네, 기초부터 진행하는 과정입니다."}, {"q": "시험 응시료는 별도인가요?", "a": "네, 시험 응시료는 별도입니다. 상세 금액은 대한상공회의소 기준입니다."}]}, "MOS (Microsoft Office Specialist)": {"usp": "마이크로소프트 공인 국제 자격증! Word·Excel·PowerPoint 전문가 인증", "desc": "Microsoft 공인 국제 자격증 MOS(Word/Excel/PowerPoint) 취득을 위한 과목별 집중 대비 과정. 국제 자격증으로 글로벌 취업·이직에 활용.", "target": "국제 자격증이 필요한 취준생·직장인, Word·Excel·PPT를 공식 인증받고 싶은 분", "curriculum": "MOS 기본 4주 과정 · Word·Excel·PowerPoint 과목별 선택 수강 / MOS 365 단기 2~3주 패키지도 운영 | CBT 시험 인터페이스 적응 실습 포함", "price": "별도 문의", "prep": "없음", "points": ["Word·Excel·PowerPoint·Access 과목별 선택 수강", "시험 인터페이스(CBT) 적응 실습", "출제 기준 집중 분석·합격률 최대화", "시험 응시·결과 확인 절차 안내", "Expert 레벨 업그레이드 연계 가능"], "effects": ["MOS 국제 자격증 취득", "글로벌 취업·이직에 활용 가능한 공인 스펙", "MS Office 실무 활용 역량 공식 인증"], "faq": [{"q": "MOS는 어떤 자격증인가요?", "a": "마이크로소프트에서 공인하는 Office 활용 능력 국제 자격증입니다."}, {"q": "컴활과 어떤 차이가 있나요?", "a": "컴활은 국내 국가기술자격, MOS는 마이크로소프트 공인 국제 자격증입니다."}, {"q": "영어로 시험을 봐야 하나요?", "a": "시험 환경은 한국어로 제공됩니다."}]}, "GTQ / GTQI": {"usp": "한국생산성본부 공인 그래픽 자격증! 포토샵·일러스트 실무 능력 공식 인증", "desc": "GTQ(포토샵)·GTQI(일러스트) 자격증 취득을 위한 필기·실기 병행 대비 과정. 디자인 취업·이직 시 포트폴리오와 함께 필수 자격증으로 인정.", "target": "그래픽 디자인 취업준비생, 포토샵·일러스트 역량을 공식 인증받고 싶은 분", "curriculum": "4주 과정 · 1주: 기본 툴·작업 환경 이해(포토샵·일러스트 병행) / 2주: 핵심 기능·실기 기초(시험 필수 기법 집중) / 3주: 시험 유형별 문제 풀이·정확도·완성도 향상 / 4주: 모의시험·실전 시간 관리 훈련 | 도구: Adobe Photoshop + Adobe Illustrator", "price": "별도 문의", "prep": "없음", "points": ["GTQ(포토샵)·GTQI(일러스트) 동시 준비 가능", "시험 출제 유형 100% 기반 실습", "실기 시험 시간 내 완성 집중 훈련", "1급·2급 레벨별 맞춤 커리큘럼", "포토샵·일러스트 과정과 연계 수강 권장"], "effects": ["GTQ·GTQI 1급·2급 자격증 취득", "디자인 취업·이직 스펙 강화", "포토샵·일러스트 실무 역량 공식 인증"], "faq": [{"q": "GTQ와 GTQI의 차이는?", "a": "GTQ는 포토샵, GTQI는 일러스트레이터 활용 능력을 인증하는 자격증입니다."}, {"q": "1급과 2급 중 어떤 걸 먼저 준비해야 하나요?", "a": "2급을 먼저 취득 후 1급을 준비하는 것이 일반적입니다."}, {"q": "포토샵·일러스트 과정을 먼저 들어야 하나요?", "a": "기초 소프트웨어 과정을 먼저 수강하면 자격증 합격률이 높아집니다."}]}, "회계실무기초과정 / 세무실무중급 / 세무실무전문가과정": {"usp": "전산회계·세무 실무 역량을 한 곳에서! 회계·세무 담당자 취업 및 실무 향상", "desc": "회계 기초부터 전산세무 실무까지 단계별로 학습하는 과정. 더존·세무사랑 등 실무 소프트웨어 활용, 재경관리사·전산세무회계 자격증 연계 준비.", "target": "회계·세무 취업 희망자, 경리·재무 담당자 실무 역량 향상을 원하는 분", "curriculum": "8주 과정(기초 기준) · 1주: 회계 기본 원리·계정과목·분개 작성 / 2주: 기업 거래 분개·정확한 회계 처리 방법 / 3주: 현금·예금·재고자산·유형자산 회계 처리 / 4주: 부채·자본 개념·기업 재무구조 분석 / 5주: 수정분개·결산 절차·재무제표 작성 실습 / 6주: KcLep 프로그램 전표 입력~결산 전 과정 실습 / 7주: 전산회계 1급·FAT 1급 기출 유형·모의고사 / 8주: 실전 문제풀이·종합 프로젝트 역량 완성 | 도구: KcLep, 더존 Smart A", "price": "별도 문의", "prep": "없음", "points": ["회계 기초→전산회계→세무 실무 단계별 학습", "더존·세무사랑 등 실무 소프트웨어 실습", "전산세무회계·재경관리사 자격증 연계 준비", "실무 전표 입력·부가세·원천세 신고 실습", "취업 컨설팅 연계"], "effects": ["회계·세무 실무 역량 향상", "전산세무회계·재경관리사 자격증 준비 기반", "경리·회계·세무 담당자 취업 역량"], "faq": [{"q": "회계를 전혀 모르는 초보도 괜찮나요?", "a": "기초 과정부터 단계별로 시작합니다."}, {"q": "어떤 소프트웨어를 사용하나요?", "a": "더존, 세무사랑 등 실무에서 가장 많이 사용하는 소프트웨어로 실습합니다."}, {"q": "자격증 준비도 같이 할 수 있나요?", "a": "네, 전산세무회계·재경관리사 자격증 연계 준비가 가능합니다."}]}, "ACP (Adobe Certified Professional)": {"usp": "어도비 공인 국제 자격증! Photoshop·Illustrator·Premiere 전문가 인증", "desc": "Adobe 공인 국제 자격증 ACP(Adobe Certified Professional) 취득을 위한 과목별 집중 대비 과정. 포토샵·일러스트·프리미어 프로 각 과목 인증.", "target": "어도비 전문가 인증이 필요한 디자이너, 포트폴리오와 함께 공인 자격증을 갖추고 싶은 분", "curriculum": "4개월 과정 · 1단계: 디자인 기초(기본 도구·작업환경 설정·디지털 콘텐츠 제작 핵심 역량) / 2단계: 핵심 기능·실무 기법(실제 업무에서 쓰는 주요 기능·작업 효율·완성도 향상) / 3단계: 시험 유형 문제 풀이(출제 유형 반복 실습·정확도·응용 능력 향상) / 4단계: 모의고사·ACP 자격증 실전 대비(실전 조건 모의 평가·취약점 보완·시간 관리) | 도구: Photoshop, Illustrator, InDesign, After Effects, Premiere Pro", "price": "별도 문의", "prep": "없음", "points": ["Photoshop·Illustrator·Premiere 과목별 선택", "Adobe 시험 유형·인터페이스 적응 실습", "국제 자격증으로 글로벌 취업 활용 가능", "GTQ와 차별화된 어도비 공인 인증", "시험 응시·결과 절차 안내"], "effects": ["ACP 어도비 공인 국제 자격증 취득", "디자인 취업·이직 스펙 강화", "어도비 소프트웨어 전문가 수준 인증"], "faq": [{"q": "ACP와 GTQ의 차이는?", "a": "ACP는 어도비 공인 국제 자격증, GTQ는 한국생산성본부 국내 자격증입니다."}, {"q": "시험은 어디서 응시하나요?", "a": "어도비 공인 시험 센터 또는 온라인 응시가 가능합니다."}, {"q": "영어로 시험을 봐야 하나요?", "a": "한국어 시험 환경을 지원합니다."}]}}}};
+const TITLE_TEMPLATES = {"후기성": [{"label": "결과·변화형", "tpl": "[메인키워드] 3개월 만에 [서브키워드] 첫 작품 완성한 후기"}, {"label": "공감·스토리형", "tpl": "[메인키워드] [서브키워드] 한 번도 안 해봤던 내가 등록한 이유"}, {"label": "정보·비교형", "tpl": "[메인키워드] 수강료·커리큘럼 [서브키워드] 솔직하게 정리해봤어요"}], "정보성": [{"label": "커리큘럼·과정 중심", "tpl": "[메인키워드] [서브키워드] 기초부터 실전까지 한 번에 배울 수 있는 과정 정리"}, {"label": "대상·목적 중심", "tpl": "[메인키워드] 직장 다니면서도 배울 수 있는 [서브키워드] 과정 알아봤습니다"}, {"label": "비교·정보형", "tpl": "[메인키워드] [서브키워드] 수강 전에 이것만 확인하세요"}]};
+const FAQ_SUGGESTIONS = [{"q": "처음 배우는 초보도 가능한가요?", "cat": "수강 조건"}, {"q": "수업은 몇 회차로 구성되나요?", "cat": "커리큘럼"}, {"q": "수강료가 어떻게 되나요?", "cat": "비용"}, {"q": "자격증 연계가 되나요?", "cat": "자격증"}, {"q": "취업 지원도 해주나요?", "cat": "진로·취업"}, {"q": "주말반도 있나요?", "cat": "시간대"}, {"q": "결석하면 보강이 되나요?", "cat": "보강 정책"}, {"q": "소프트웨어는 학원 PC로 사용하나요?", "cat": "시설"}];
+
+// ── State ─────────────────────────────────────────────────
+const ST = {step:1, type:'', style:'', branch:''};
+const TOTAL = 5;
+let scat=null, ssub=null, scrs=null, cfaqs=[], pwOpen=false, fsOpen=false;
+
+// ── Init ───────────────────────────────────────────────────
+(function init(){
+  const b=localStorage.getItem('br'); if(b) document.getElementById('branch').value=b;
+  const k=localStorage.getItem('ak'); if(k) document.getElementById('akey').value=k;
+  go(1);
+})();
+
+// ── Navigation ─────────────────────────────────────────────
+function go(n){
+  for(let i=1;i<=TOTAL;i++) document.getElementById('s'+i).classList.toggle('hidden',i!==n);
+  ST.step=n; upProg();
+  if(n===2) renderGrid();
+  if(n===3){ renderTpl(); renderLT(); }
+  if(n===4 && !document.getElementById('ctabs').children.length) renderCats();
+  if(n===5){ buildPrm(); autoGen(); }
+  window.scrollTo(0,0);
+}
+function nxt(){ if(ST.step===1&&!v1()) return; go(ST.step+1); }
+function prv(){ go(ST.step-1); }
+function jmp(n){ if(n<=ST.step) go(n); }
+
+function upProg(){
+  for(let i=1;i<=TOTAL;i++){
+    const sc=document.getElementById('sc'+i), sl=document.getElementById('sl'+i), ln=document.getElementById('ln'+i);
+    sc.className='sc'+(i<ST.step?' done':i===ST.step?' active':'');
+    sl.className='sl'+(i===ST.step?' active':'');
+    if(ln) ln.className='sline'+(i<ST.step?' done':'');
+  }
+}
+
+// ── Step 1 ─────────────────────────────────────────────────
+function v1(){
+  if(!document.getElementById('branch').value.trim()){alert('지점명을 입력해주세요.');return false;}
+  if(!ST.type){alert('글 유형을 선택해주세요.');return false;}
+  ST.branch=document.getElementById('branch').value.trim();
+  return true;
+}
+function selType(t){
+  ST.type=t;
+  document.getElementById('btn-I').classList.toggle('sel',t==='정보성');
+  document.getElementById('btn-R').classList.toggle('sel',t==='후기성');
+  document.getElementById('n1').disabled=false;
+}
+
+// ── Step 2 ─────────────────────────────────────────────────
+function renderGrid(){
+  const isI=ST.type==='정보성';
+  document.getElementById('s2t').textContent=isI?'톤 선택 (정보성)':'페르소나 선택 (후기성)';
+  document.getElementById('s2s').textContent=isI?'8가지 톤 중 이번 글에 맞는 스타일을 선택하세요.':'11가지 페르소나 중 수강생 유형을 선택하세요.';
+  const src=isI?DATA.tones:DATA.personas, g=document.getElementById('sgrid');
+  g.innerHTML='';
+  Object.entries(src).forEach(([k,v])=>{
+    const d=document.createElement('div');
+    d.className='gb'+(k===ST.style?' sel':'');
+    d.innerHTML='<div class="gi">'+(v.icon||'')+'</div><div class="gn">'+v.name+'</div><div class="gd">'+v.desc+'</div>';
+    d.onclick=()=>{ST.style=k;document.querySelectorAll('.gb').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');document.getElementById('n2').disabled=false;};
+    g.appendChild(d);
+  });
+}
+
+// ── Step 3 ─────────────────────────────────────────────────
+function renderTpl(){
+  const w=document.getElementById('ttpl'); w.innerHTML='';
+  (TITLE_TEMPLATES[ST.type]||[]).forEach(t=>{
+    const d=document.createElement('div'); d.className='tpl';
+    d.innerHTML='<div class="tpl-lbl">['+t.label+'] — 클릭하면 복사</div><div class="tpl-txt">'+t.tpl+'</div>';
+    d.onclick=()=>{
+      const m=document.getElementById('km').value||'[메인키워드]';
+      const s=document.getElementById('ks').value||'[서브키워드]';
+      const txt=t.tpl.replace(/\[메인키워드\]/g,m).replace(/\[서브키워드\]/g,s);
+      navigator.clipboard.writeText(txt).catch(()=>{});
+      d.style.borderColor='#16a34a';d.style.background='#f0fff4';
+      setTimeout(()=>{d.style.borderColor='';d.style.background='';},1500);
+    };
+    w.appendChild(d);
+  });
+}
+function renderLT(){
+  const w=document.getElementById('lt-chips'), h=document.getElementById('lt-hint');
+  w.innerHTML='';
+  if(!scat||!COURSES[scat]){h.classList.add('hidden');return;}
+  const kws=COURSES[scat].longTail||[];
+  if(!kws.length){h.classList.add('hidden');return;}
+  h.classList.remove('hidden');
+  kws.forEach(kw=>{
+    const b=document.createElement('button'); b.className='chip'; b.textContent=kw;
+    b.onclick=()=>{
+      const el=document.getElementById('kl');
+      const arr=el.value.trim()?el.value.split(',').map(x=>x.trim()).filter(Boolean):[];
+      if(!arr.includes(kw)){arr.push(kw);el.value=arr.join(', ');b.classList.add('ok');setTimeout(()=>b.classList.remove('ok'),1200);}
+    };
+    w.appendChild(b);
+  });
+}
+
+// ── Step 4 ─────────────────────────────────────────────────
+function renderCats(){
+  const w=document.getElementById('ctabs'); w.innerHTML='';
+  Object.keys(COURSES).forEach(cat=>{
+    const b=document.createElement('button'); b.className='ctab'+(cat===scat?' sel':'');
+    b.textContent=cat;
+    b.onclick=()=>selCat(cat);
+    w.appendChild(b);
+  });
+}
+function selCat(cat){
+  scat=cat; ssub=null; scrs=null;
+  renderCats(); renderSubs(); clearGrid(); clearFields();
+  document.getElementById('csi').classList.add('hidden');
+  renderLT();
+}
+function renderSubs(){
+  const sw=document.getElementById('sw'), st=document.getElementById('stabs');
+  if(!scat){sw.classList.add('hidden');return;}
+  const subs=COURSES[scat].subs||{}, sk=Object.keys(subs);
+  if(!sk.length){sw.classList.add('hidden');renderGrid2(Object.keys(COURSES[scat].courses));return;}
+  sw.classList.remove('hidden'); st.innerHTML='';
+  const all=document.createElement('button'); all.className='stab'+(!ssub?' sel':''); all.textContent='전체';
+  all.onclick=()=>{ssub=null;renderSubs();renderGrid2(Object.keys(COURSES[scat].courses));};
+  st.appendChild(all);
+  sk.forEach(sub=>{
+    const b=document.createElement('button'); b.className='stab'+(sub===ssub?' sel':''); b.textContent=sub;
+    b.onclick=()=>{ssub=sub;renderSubs();renderGrid2(subs[sub]);};
+    st.appendChild(b);
+  });
+  renderGrid2(ssub?subs[ssub]:Object.keys(COURSES[scat].courses));
+}
+function renderGrid2(names){
+  const w=document.getElementById('cgw'), g=document.getElementById('cg');
+  if(!names||!scat){w.classList.add('hidden');return;}
+  w.classList.remove('hidden'); g.innerHTML='';
+  const cats=COURSES[scat].courses;
+  names.forEach(nm=>{
+    const d=cats[nm]; if(!d) return;
+    const c=document.createElement('div'); c.className='cc'+(nm===scrs?' sel':'');
+    const u=d.usp?(d.usp.length>35?d.usp.substring(0,35)+'…':d.usp):'';
+    c.innerHTML='<div class="cn">'+nm+'</div><div class="cu">'+u+'</div>';
+    c.onclick=()=>selCrs(nm,d);
+    g.appendChild(c);
+  });
+}
+function clearGrid(){
+  document.getElementById('cgw').classList.add('hidden');
+  document.getElementById('cg').innerHTML='';
+}
+function selCrs(nm,data){
+  scrs=nm; cfaqs=data.faq||[];
+  const subs=COURSES[scat].subs||{};
+  renderGrid2(ssub?subs[ssub]:Object.keys(COURSES[scat].courses));
+  fillFields(nm,data);
+  const ci=document.getElementById('csi');
+  ci.classList.remove('hidden');
+  ci.innerHTML='✓ 선택: <b>'+scat+(ssub?' &gt; '+ssub:'')+' &gt; '+nm+'</b> — 정보가 자동 입력됐습니다. 수정 가능합니다.';
+  document.getElementById('cfields').classList.remove('hidden');
+  renderFaqChips(cfaqs);
+}
+function fillFields(nm,d){
+  const s=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v||'';};
+  s('cn',nm); s('cp',d.price); s('cu',d.usp); s('cd',d.desc);
+  s('ct',d.target); s('cc',d.curriculum);
+  document.getElementById('cpr').value=d.prep||'없음';
+  document.getElementById('cpo').value=d.points?d.points.map(p=>'· '+p).join('\n'):'';
+  document.getElementById('ce').value=d.effects?d.effects.join(' / '):'';
+  const f=d.faq||[];
+  s('q1',f[0]?.q); s('a1',f[0]?.a);
+  s('q2',f[1]?.q); s('a2',f[1]?.a);
+  s('q3',f[2]?.q); s('a3',f[2]?.a);
+}
+function clearFields(){
+  document.getElementById('cfields').classList.add('hidden');
+  ['cn','cp','cu','cd','ct','cc','ce','ex'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('cpr').value='없음';
+  document.getElementById('cpo').value='';
+  ['q1','a1','q2','a2','q3','a3'].forEach(id=>document.getElementById(id).value='');
+}
+function tgFaq(){
+  fsOpen=!fsOpen;
+  document.getElementById('fsug').classList.toggle('hidden',!fsOpen);
+  document.getElementById('fsb').textContent=fsOpen?'닫기 ▴':'과목 FAQ 추천 ▾';
+}
+function renderFaqChips(faqs){
+  const c1=document.getElementById('fchips1'); c1.innerHTML='';
+  faqs.forEach((f,i)=>{
+    if(i>=6)return;
+    const b=document.createElement('button'); b.className='fsb';
+    b.textContent=f.q.length>30?f.q.substring(0,30)+'…':f.q; b.title=f.q+' / '+f.a;
+    b.onclick=()=>fillFaq(f.q,f.a); c1.appendChild(b);
+  });
+  if(!faqs.length) c1.innerHTML='<span style="font-size:.73rem;color:#999;">FAQ 없음</span>';
+  const c2=document.getElementById('fchips2'); c2.innerHTML='';
+  FAQ_SUGGESTIONS.forEach(f=>{
+    const b=document.createElement('button'); b.className='fsb';
+    b.textContent='['+f.cat+'] '+f.q; b.onclick=()=>fillFaq(f.q,''); c2.appendChild(b);
+  });
+}
+function fillFaq(q,a){
+  const slots=[{q:'q1',a:'a1'},{q:'q2',a:'a2'},{q:'q3',a:'a3'}];
+  for(const s of slots){
+    if(!document.getElementById(s.q).value){
+      document.getElementById(s.q).value=q; document.getElementById(s.a).value=a; return;
+    }
+  }
+  alert('FAQ 3개가 모두 채워져 있습니다.');
+}
+
+// ── Build Prompt ────────────────────────────────────────────
+function buildPrm(){
+  const br=ST.branch, tp=ST.type;
+  const src=tp==='정보성'?DATA.tones:DATA.personas, ch=src[ST.style];
+  const g=id=>(document.getElementById(id)||{value:''}).value.trim();
+  const BIG='━'.repeat(50);
+  let sys=DATA.sys.replace('[학원명]','SBS아카데미컴퓨터아트학원')
+    .replace(/\[지점명\]/g,br).replace(/\(지점명\)/g,'('+br+')');
+  let fq='';
+  if(g('q1')&&g('a1')) fq+='  Q. '+g('q1')+' / A. '+g('a1')+'\n';
+  if(g('q2')&&g('a2')) fq+='  Q. '+g('q2')+' / A. '+g('a2')+'\n';
+  if(g('q3')&&g('a3')) fq+='  Q. '+g('q3')+' / A. '+g('a3')+'\n';
+  const strs=[...document.querySelectorAll('#strs input:checked')].map(c=>c.value);
+  const strB=strs.length?strs.map(s=>'- '+s).join('\n'):'- (해당 지점 강점 입력)';
+  const pnts=g('cpo');
+  const prm=sys+'\n\n'+BIG+'\n[블로그 원고 작성 요청]\n\n## 키워드 정보\n- 메인 키워드: '+g('km')+'\n- 서브 키워드: '+g('ks')+'\n- 롱테일 키워드: '+(g('kl')||'(없음)')+'\n\n## 글쓰기 지침\n글 유형: '+tp+'\n'+(ch?ch.prompt:'')+'\n\n## 과목 정보\n- 과목명: '+(g('cn')||'(미입력)')+'\n- USP: '+(g('cu')||'(미입력)')+'\n- 설명: '+(g('cd')||'(미입력)')+'\n- 타겟: '+(g('ct')||'(미입력)')+'\n- 커리큘럼: '+(g('cc')||'(미입력)')+'\n- 가격: '+(g('cp')||'별도 문의')+'\n- 준비물: '+(g('cpr')||'없음')+'\n- 핵심 포인트:\n'+(pnts||'  (미입력)')+'\n- 효과: '+(g('ce')||'(미입력)')+'\n- FAQ:\n'+(fq||'  (미입력)')+'\n## 학원 강점 (참조용)\n'+strB+'\n\n'+BIG+'\n'+DATA.title+'\n\n'+BIG+'\n'+DATA.body+'\n\n'+BIG+'\n'+DATA.reqs+(g('ex')?'\n\n'+BIG+'\n## 추가 지시사항 (이번 글에만 적용)\n'+g('ex'):'');
+  document.getElementById('output-box').value=prm;
+  document.getElementById('sbar').innerHTML='<b>'+tp+'</b> · <b>'+(ch?ch.name:'')+'</b> · 메인: <b>'+g('km')+'</b> · 서브: <b>'+g('ks')+'</b> · 과목: <b>'+(g('cn')||'미입력')+'</b>';
+  return prm;
+}
+function tgPw(){
+  pwOpen=!pwOpen;
+  document.getElementById('pw').classList.toggle('hidden',!pwOpen);
+}
+function cpPrm(){
+  const b=document.getElementById('output-box'); b.select();
+  navigator.clipboard.writeText(b.value).catch(()=>document.execCommand('copy'));
+  const btn=document.getElementById('cpbtn'); btn.textContent='✅ 복사완료'; btn.classList.add('ok');
+  setTimeout(()=>{btn.textContent='📋 프롬프트 복사';btn.classList.remove('ok');},2000);
+}
+function cpRes(){
+  navigator.clipboard.writeText(document.getElementById('blog-result').textContent).then(()=>alert('원고가 복사되었습니다!'));
+}
+
+// ── Auto generate on step 5 ─────────────────────────────────
+function autoGen(){
+  if(localStorage.getItem('ak')) genClaude();
+  else{
+    document.getElementById('blog-result').style.display='block';
+    document.getElementById('blog-result').textContent='API 키를 입력하면 Claude가 블로그 원고를 즉시 작성합니다.\n\n키가 없다면 아래 "프롬프트 복사"를 눌러 claude.ai, ChatGPT 등에 직접 붙여넣기 하세요.';
+  }
+}
+
+// ── Claude API ──────────────────────────────────────────────
+async function genClaude(){
+  const key=(document.getElementById('akey').value||'').trim();
+  if(!key){alert('Anthropic API 키를 입력해주세요.');return;}
+  localStorage.setItem('ak',key);
+  const prm=document.getElementById('output-box').value||buildPrm();
+  const btn=document.getElementById('gbtn'), res=document.getElementById('blog-result');
+  const ra=document.getElementById('res-actions');
+  btn.disabled=true; btn.textContent='작성 중...';
+  res.style.display='block'; res.className='loading';
+  res.textContent='Claude가 블로그 원고를 작성하고 있습니다...';
+  ra.style.display='none';
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'x-api-key':key,
+        'anthropic-version':'2023-06-01',
+        'content-type':'application/json',
+        'anthropic-dangerous-direct-browser-access':'true',
+      },
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4096,messages:[{role:'user',content:prm}]})
+    });
+    if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+r.status);}
+    const data=await r.json();
+    const txt=data.content?.[0]?.text||'(결과 없음)';
+    res.className=''; res.textContent=txt;
+    ra.style.display='flex';
+  }catch(e){
+    res.className='';
+    res.textContent='❌ 오류: '+e.message+'\n\n아래 프롬프트를 복사하여 claude.ai 또는 ChatGPT에 붙여넣으세요.';
+    if(!pwOpen){pwOpen=true;document.getElementById('pw').classList.remove('hidden');}
+  }finally{
+    btn.disabled=false; btn.textContent='Claude로 원고 작성';
+  }
+}
+
+// ── Reset ───────────────────────────────────────────────────
+function resetAll(){
+  if(!confirm('모든 입력을 초기화할까요?')) return;
+  ST.type=''; ST.style=''; ST.branch='';
+  scat=null; ssub=null; scrs=null; cfaqs=[]; pwOpen=false; fsOpen=false;
+  document.getElementById('branch').value=localStorage.getItem('br')||'';
+  ['km','ks','kl','cn','cp','cu','cd','ct','cc','ce','ex'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('cpr').value='없음';
+  document.getElementById('cpo').value='';
+  ['q1','a1','q2','a2','q3','a3'].forEach(id=>document.getElementById(id).value='');
+  document.querySelectorAll('#strs input').forEach(c=>c.checked=false);
+  document.getElementById('blog-result').style.display='none';
+  document.getElementById('res-actions').style.display='none';
+  document.getElementById('pw').classList.add('hidden');
+  document.getElementById('btn-I').classList.remove('sel');
+  document.getElementById('btn-R').classList.remove('sel');
+  document.getElementById('n1').disabled=true;
+  document.getElementById('ctabs').innerHTML='';
+  go(1);
+}
+
+</script>
+</body>
+</html>
