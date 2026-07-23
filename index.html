@@ -684,7 +684,7 @@ function buildPrm(){
   const strB=strs.length?strs.map(s=>'- '+s).join('\n'):'- (해당 지점 강점 입력)';
   const pnts=g('cpo');
   const prm=sys+'\n\n'+BIG+'\n[블로그 원고 작성 요청]\n\n## 키워드 정보\n- 메인 키워드: '+g('km')+'\n- 서브 키워드: '+g('ks')+'\n- 롱테일 키워드: '+(g('kl')||'(없음)')+'\n\n## 글쓰기 지침\n글 유형: '+tp+'\n'+(ch?ch.prompt:'')+'\n\n## 과목 정보\n- 과목명: '+(g('cn')||'(미입력)')+'\n- USP: '+(g('cu')||'(미입력)')+'\n- 설명: '+(g('cd')||'(미입력)')+'\n- 타겟: '+(g('ct')||'(미입력)')+'\n- 커리큘럼: '+(g('cc')||'(미입력)')+'\n- 가격: '+(g('cp')||'별도 문의')+'\n- 준비물: '+(g('cpr')||'없음')+'\n- 핵심 포인트:\n'+(pnts||'  (미입력)')+'\n- 효과: '+(g('ce')||'(미입력)')+'\n- FAQ:\n'+(fq||'  (미입력)')+'\n## 학원 강점 (참조용)\n'+strB+'\n\n'+BIG+'\n'+DATA.title
-    .replace(/\*\*메인 키워드[^\n]+\n\n/,'')
+    .replace(/\*\*메인 키워드[\s\S]*?\n\n(?=## 제목)/,'')
     .replace(/\[메인키워드\]/g,g('km')||'[메인키워드]')
     .replace(/\[서브키워드\]/g,g('ks')||'[서브키워드]')
     .replace(/\[롱테일 콤마구분\]/g,g('kl')||'(없음)')
@@ -832,3 +832,4 @@ function pickSearch(cat,nm){
 </script>
 </body>
 </html>
+
