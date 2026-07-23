@@ -230,8 +230,8 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',sans-serif;backg
   <div class="steps">
     <div class="si"><div class="sc active" id="sc1" onclick="jmp(1)">1</div><span class="sl active" id="sl1">기본 설정</span><div class="sline" id="ln1"></div></div>
     <div class="si"><div class="sc" id="sc2" onclick="jmp(2)">2</div><span class="sl" id="sl2">스타일</span><div class="sline" id="ln2"></div></div>
-    <div class="si"><div class="sc" id="sc3" onclick="jmp(3)">3</div><span class="sl" id="sl3">키워드</span><div class="sline" id="ln3"></div></div>
-    <div class="si"><div class="sc" id="sc4" onclick="jmp(4)">4</div><span class="sl" id="sl4">과목 선택</span><div class="sline" id="ln4"></div></div>
+    <div class="si"><div class="sc" id="sc3" onclick="jmp(3)">3</div><span class="sl" id="sl3">과목 선택</span><div class="sline" id="ln3"></div></div>
+    <div class="si"><div class="sc" id="sc4" onclick="jmp(4)">4</div><span class="sl" id="sl4">키워드</span><div class="sline" id="ln4"></div></div>
     <div class="si"><div class="sc" id="sc5" onclick="jmp(5)">5</div><span class="sl" id="sl5">블로그 생성</span></div>
   </div>
 </div>
@@ -268,26 +268,6 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',sans-serif;backg
 
 <!-- STEP 3 -->
 <div id="s3" class="card hidden">
-  <h2>키워드 입력</h2>
-  <p class="sub">네이버 SEO 키워드를 입력하세요.</p>
-  <div class="field"><label>메인 키워드 <span style="color:#e33">*</span></label><input type="text" id="km" placeholder="예: 강남컴퓨터학원, 서초디자인학원" oninput="updateSidebar()"><div class="hint">지역명+업종명 형태. 제목 맨 앞에 고정됩니다.</div></div>
-  <div class="field"><label>서브 키워드 <span style="color:#e33">*</span></label><input type="text" id="ks" placeholder="예: 포토샵, GTQ자격증, AI바이브코딩" oninput="updateSidebar()"><div class="hint">과목명 또는 핵심 주제어. 제목 3개 전부에 포함됩니다.</div></div>
-  <div class="field">
-    <label>롱테일 키워드 (쉼표로 구분)</label>
-    <input type="text" id="kl" placeholder="예: 포토샵독학, 디자인자격증, 직장인취미">
-    <div class="hint">3~5개 권장. 제목·본문에 분산 배치됩니다.</div>
-    <div id="lt-chips" class="chips"></div>
-    <div id="lt-hint" class="hint hidden">↑ 추천 롱테일 — 클릭하면 추가됩니다</div>
-  </div>
-  <div class="field">
-    <label>제목 예시 템플릿 <span style="font-size:.72rem;color:#888;">(클릭하면 복사)</span></label>
-    <div id="ttpl"></div>
-  </div>
-  <div class="nav"><button class="nbtn prev" onclick="prv()">← 이전</button><button class="nbtn next" onclick="nxt()">다음 →</button></div>
-</div>
-
-<!-- STEP 4 -->
-<div id="s4" class="card hidden">
   <h2>과목 선택 및 정보</h2>
   <p class="sub">대분류 → 소분류 → 과목 클릭 시 모든 정보가 자동 입력됩니다.</p>
   <div class="field">
@@ -336,6 +316,28 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',sans-serif;backg
       </div>
     </div>
     <div class="field"><label>추가 지시사항</label><textarea id="ex" placeholder="예: 자격증 합격 후기 톤으로 / 5월 프로모션 강조" style="min-height:52px;"></textarea></div>
+  </div>
+  <div class="nav"><button class="nbtn prev" onclick="prv()">← 이전</button><button class="nbtn next" onclick="nxt()">다음 →</button></div>
+</div>
+
+<!-- STEP 4 -->
+<div id="s4" class="card hidden">
+  <h2>키워드 입력</h2>
+  <p class="sub">선택한 과목을 기반으로 SEO 키워드를 입력하세요.</p>
+  <div class="field"><label>메인 키워드 <span style="color:#e33">*</span></label><input type="text" id="km" placeholder="예: 강남컴퓨터학원, 서초디자인학원" oninput="updateSidebar()"><div class="hint">지역명+업종명 형태. 제목 맨 앞에 고정됩니다.</div>
+    <div id="km-suggest" class="hidden" style="margin-top:8px;"><div class="hint" style="color:var(--p);font-weight:600;margin-bottom:4px;">💡 메인 키워드 추천 (클릭 → 채워짐)</div><div id="km-chips" class="chips"></div></div></div>
+  <div class="field"><label>서브 키워드 <span style="color:#e33">*</span></label><input type="text" id="ks" placeholder="예: 포토샵, GTQ자격증, AI바이브코딩" oninput="updateSidebar()"><div class="hint">과목명 또는 핵심 주제어. 제목 3개 전부에 포함됩니다.</div>
+    <div id="ks-suggest" class="hidden" style="margin-top:8px;"><div class="hint" style="color:var(--p);font-weight:600;margin-bottom:4px;">💡 서브 키워드 추천 (클릭 → 채워짐)</div><div id="ks-chips" class="chips"></div></div></div>
+  <div class="field">
+    <label>롱테일 키워드 (쉼표로 구분)</label>
+    <input type="text" id="kl" placeholder="예: 포토샵독학, 디자인자격증, 직장인취미">
+    <div class="hint">3~5개 권장. 제목·본문에 분산 배치됩니다.</div>
+    <div id="lt-chips" class="chips"></div>
+    <div id="lt-hint" class="hint hidden" style="color:var(--p);font-weight:600;">💡 과목 연관 롱테일 추천 — 클릭하면 추가됩니다</div>
+  </div>
+  <div class="field">
+    <label>제목 예시 템플릿 <span style="font-size:.72rem;color:#888;">(클릭하면 복사)</span></label>
+    <div id="ttpl"></div>
   </div>
   <div class="nav"><button class="nbtn prev" onclick="prv()">← 이전</button><button class="nbtn next finish" onclick="nxt()">블로그 생성하기 →</button></div>
 </div>
@@ -405,8 +407,8 @@ function go(n){
   for(let i=1;i<=TOTAL;i++) document.getElementById('s'+i).classList.toggle('hidden',i!==n);
   ST.step=n; upProg();
   if(n===2) renderGrid();
-  if(n===3){ renderTpl(); renderLT(); }
-  if(n===4 && !document.getElementById('ctabs').children.length) renderCats();
+  if(n===3 && !document.getElementById('ctabs').children.length) renderCats();
+  if(n===4){ renderTpl(); renderCourseKeywords(); }
   if(n===5){ buildPrm(); saveHistory(); renderHistory(); updateSidebar(); }
   window.scrollTo(0,0);
 }
@@ -471,6 +473,72 @@ function renderTpl(){
     w.appendChild(d);
   });
 }
+
+function renderCourseKeywords(){
+  var w=document.getElementById('lt-chips'), h=document.getElementById('lt-hint');
+  w.innerHTML='';
+  var catLT=(scat&&COURSES[scat])?COURSES[scat].longTail||[]:[];
+  var courseName=scrs||'';
+  var combined=courseName
+    ?catLT.map(function(kw){return courseName+kw;}).concat(catLT)
+    :catLT;
+  if(!combined.length){h.classList.add('hidden');}
+  else{
+    h.classList.remove('hidden');
+    combined.slice(0,14).forEach(function(kw){
+      var b=document.createElement('button'); b.className='chip'; b.textContent=kw;
+      b.onclick=function(){
+        var el=document.getElementById('kl');
+        var arr=el.value.trim()?el.value.split(',').map(function(x){return x.trim();}).filter(Boolean):[];
+        if(!arr.includes(kw)){arr.push(kw); el.value=arr.join(', ');}
+        b.classList.add('ok');
+      };
+      w.appendChild(b);
+    });
+  }
+  var ksSuggest=document.getElementById('ks-suggest');
+  var ksEl=document.getElementById('ks-chips');
+  if(!scrs){if(ksSuggest)ksSuggest.classList.add('hidden');}
+  else{
+    ksEl.innerHTML='';
+    var isQual=/(자격증|GTQ|컴활|AICE|ACP|MOS|AI-POT|실내건축)/.test(courseName);
+    var variants=isQual
+      ?[courseName,courseName+'취득',courseName+'합격',courseName+'준비',courseName+'독학']
+      :[courseName,courseName+'배우기',courseName+'수강',courseName+'초보',courseName+'후기'];
+    variants.forEach(function(kw){
+      var b=document.createElement('button'); b.className='chip'; b.textContent=kw;
+      b.onclick=function(){
+        document.getElementById('ks').value=kw;
+        ksEl.querySelectorAll('.chip').forEach(function(c){c.classList.remove('ok');});
+        b.classList.add('ok'); updateSidebar();
+      };
+      ksEl.appendChild(b);
+    });
+    ksSuggest.classList.remove('hidden');
+  }
+  var kmSuggest=document.getElementById('km-suggest');
+  var kmEl=document.getElementById('km-chips');
+  if(kmEl){
+    kmEl.innerHTML='';
+    var branch=(document.getElementById('branch')||{value:''}).value.trim();
+    var region=branch.replace(/점$/,'').replace(/아카데미.*$/,'').trim();
+    var bases=['AI학원','컴퓨터학원','디자인학원','AI아카데미'];
+    var areas=region?[region]:['강남','서초','신촌','홍대','강서'];
+    var suggestions=[];
+    areas.forEach(function(a){bases.forEach(function(b2){suggestions.push(a+b2);});});
+    suggestions.slice(0,8).forEach(function(kw){
+      var b=document.createElement('button'); b.className='chip'; b.textContent=kw;
+      b.onclick=function(){
+        document.getElementById('km').value=kw;
+        kmEl.querySelectorAll('.chip').forEach(function(c){c.classList.remove('ok');});
+        b.classList.add('ok'); updateSidebar();
+      };
+      kmEl.appendChild(b);
+    });
+    kmSuggest.classList.remove('hidden');
+  }
+}
+
 function renderLT(){
   const w=document.getElementById('lt-chips'), h=document.getElementById('lt-hint');
   w.innerHTML='';
