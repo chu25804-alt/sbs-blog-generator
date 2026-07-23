@@ -480,7 +480,7 @@ function renderCourseKeywords(){
   var catLT=(scat&&COURSES[scat])?COURSES[scat].longTail||[]:[];
   var courseName=scrs||'';
   var combined=courseName
-    ?catLT.map(function(kw){return courseName+kw;}).concat(catLT)
+    ?catLT.map(function(kw){return courseName+' '+kw;}).concat(catLT)
     :catLT;
   if(!combined.length){h.classList.add('hidden');}
   else{
@@ -683,7 +683,17 @@ function buildPrm(){
   const strs=[...document.querySelectorAll('#strs input:checked')].map(c=>c.value);
   const strB=strs.length?strs.map(s=>'- '+s).join('\n'):'- (해당 지점 강점 입력)';
   const pnts=g('cpo');
-  const prm=sys+'\n\n'+BIG+'\n[블로그 원고 작성 요청]\n\n## 키워드 정보\n- 메인 키워드: '+g('km')+'\n- 서브 키워드: '+g('ks')+'\n- 롱테일 키워드: '+(g('kl')||'(없음)')+'\n\n## 글쓰기 지침\n글 유형: '+tp+'\n'+(ch?ch.prompt:'')+'\n\n## 과목 정보\n- 과목명: '+(g('cn')||'(미입력)')+'\n- USP: '+(g('cu')||'(미입력)')+'\n- 설명: '+(g('cd')||'(미입력)')+'\n- 타겟: '+(g('ct')||'(미입력)')+'\n- 커리큘럼: '+(g('cc')||'(미입력)')+'\n- 가격: '+(g('cp')||'별도 문의')+'\n- 준비물: '+(g('cpr')||'없음')+'\n- 핵심 포인트:\n'+(pnts||'  (미입력)')+'\n- 효과: '+(g('ce')||'(미입력)')+'\n- FAQ:\n'+(fq||'  (미입력)')+'\n## 학원 강점 (참조용)\n'+strB+'\n\n'+BIG+'\n'+DATA.title+'\n\n'+BIG+'\n'+DATA.body+'\n\n'+BIG+'\n'+DATA.reqs+(g('ex')?'\n\n'+BIG+'\n## 추가 지시사항 (이번 글에만 적용)\n'+g('ex'):'');
+  const prm=sys+'\n\n'+BIG+'\n[블로그 원고 작성 요청]\n\n## 키워드 정보\n- 메인 키워드: '+g('km')+'\n- 서브 키워드: '+g('ks')+'\n- 롱테일 키워드: '+(g('kl')||'(없음)')+'\n\n## 글쓰기 지침\n글 유형: '+tp+'\n'+(ch?ch.prompt:'')+'\n\n## 과목 정보\n- 과목명: '+(g('cn')||'(미입력)')+'\n- USP: '+(g('cu')||'(미입력)')+'\n- 설명: '+(g('cd')||'(미입력)')+'\n- 타겟: '+(g('ct')||'(미입력)')+'\n- 커리큘럼: '+(g('cc')||'(미입력)')+'\n- 가격: '+(g('cp')||'별도 문의')+'\n- 준비물: '+(g('cpr')||'없음')+'\n- 핵심 포인트:\n'+(pnts||'  (미입력)')+'\n- 효과: '+(g('ce')||'(미입력)')+'\n- FAQ:\n'+(fq||'  (미입력)')+'\n## 학원 강점 (참조용)\n'+strB+'\n\n'+BIG+'\n'+DATA.title
+    .replace(/\*\*메인 키워드[^\n]+\n\n/,'')
+    .replace(/\[메인키워드\]/g,g('km')||'[메인키워드]')
+    .replace(/\[서브키워드\]/g,g('ks')||'[서브키워드]')
+    .replace(/\[롱테일 콤마구분\]/g,g('kl')||'(없음)')
+  +'\n\n'+BIG+'\n'+DATA.body
+    .replace(/\*\*그대로 복사[^\n]+\n\n/,'')
+    .replace(/\[메인키워드\]/g,g('km')||'[메인키워드]')
+    .replace(/\[서브키워드\]/g,g('ks')||'[서브키워드]')
+    .replace(/\[롱테일\]/g,g('kl')||'(없음)')
+  +'\n\n'+BIG+'\n'+DATA.reqs+(g('ex')?'\n\n'+BIG+'\n## 추가 지시사항 (이번 글에만 적용)\n'+g('ex'):'');
   document.getElementById('output-box').value=prm;
   document.getElementById('sbar').innerHTML='<b>'+tp+'</b> · <b>'+(ch?ch.name:'')+'</b> · 메인: <b>'+g('km')+'</b> · 서브: <b>'+g('ks')+'</b> · 과목: <b>'+(g('cn')||'미입력')+'</b>';
   return prm;
