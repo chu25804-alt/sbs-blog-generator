@@ -418,7 +418,7 @@ let scat=null, ssub=null, scrs=null, cfaqs=[], pwOpen=false, fsOpen=false;
 function go(n){
   for(let i=1;i<=TOTAL;i++) document.getElementById('s'+i).classList.toggle('hidden',i!==n);
   ST.step=n; upProg();
-  if(n===2 && !document.getElementById("ctabs").children.length) renderCats();
+  if(n===2){ if(!document.getElementById("ctabs").children.length) renderCats(); if(scat) renderSubs(); }
   if(n===3) renderGrid();
   if(n===4){ renderTpl(); renderCourseKeywords(); }
   if(n===5){ buildPrm(); buildPrm2(); saveHistory(); renderHistory(); updateSidebar(); }
@@ -581,8 +581,9 @@ function renderCats(){
 }
 function selCat(cat){
   scat=cat; ssub=null; scrs=null;
-  renderCats(); renderSubs(); clearGrid(); clearFields();
+  renderCats(); clearGrid(); clearFields();
   document.getElementById('csi').classList.add('hidden');
+  renderSubs();
   renderLT();
 }
 function renderSubs(){
