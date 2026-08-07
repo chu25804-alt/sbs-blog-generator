@@ -357,18 +357,6 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',sans-serif;backg
       <a class="abtn" href="https://chat.openai.com" target="_blank" onclick="cpPrm()">ChatGPT →</a>
     </div>
   </div>
-  <div class="prompt-wrap" style="margin-top:18px;" id="prm2-wrap">
-    <div class="prompt-wrap-head">
-      <span>📋 블로그 프롬프트2 — 국비지원 전용</span>
-    </div>
-    <div class="sub" style="margin-bottom:8px;font-size:.78rem;color:#64748b;">국민취업지원제도·국민내일배움카드·국가기간 전략산업직종훈련·국비지원 안내에 대한 블로그 글 작성용 프롬프트입니다.</div>
-    <textarea id="output-box2" readonly style="min-height:320px;width:100%;font-family:'Courier New',monospace;font-size:.76rem;border:1.5px solid #ddd6fe;border-radius:8px;padding:13px;background:#fafafa;line-height:1.7;resize:vertical;color:#0f172a;"></textarea>
-    <div class="cbar" style="margin-top:10px;">
-      <button class="cbtn" id="cpbtn2" onclick="cpPrm2()">📋 전체 복사</button>
-      <a class="abtn" href="https://claude.ai" target="_blank" onclick="cpPrm2()">Claude.ai →</a>
-      <a class="abtn" href="https://chat.openai.com" target="_blank" onclick="cpPrm2()">ChatGPT →</a>
-    </div>
-  </div>
   <div class="hist-sect">
     <div class="hist-head">
       <span>최근 생성 기록 (최대 10개)</span>
@@ -421,7 +409,7 @@ function go(n){
   if(n===2){ if(!document.getElementById("ctabs").children.length) renderCats(); if(scat) renderSubs(); }
   if(n===3) renderGrid();
   if(n===4){ renderTpl(); renderCourseKeywords(); }
-  if(n===5){ buildPrm(); buildPrm2(); saveHistory(); renderHistory(); updateSidebar(); }
+  if(n===5){ buildPrm(); saveHistory(); renderHistory(); updateSidebar(); }
   window.scrollTo(0,0);
 }
 function nxt(){ if(ST.step===1&&!v1()) return; go(ST.step+1); }
@@ -832,30 +820,6 @@ function pickSearch(cat,nm){
   if(d) selCrs(nm,d);
 }
 
-function buildPrm2(){
-  const br=ST.branch||(document.getElementById('branch')||{value:''}).value.trim();
-  const g=id=>(document.getElementById(id)||{value:''}).value.trim();
-  const BIG='━'.repeat(50);
-  const branchFull='SBS아카데미AIX학원'+(br?'('+br+')':'');
-  const km=g('km')||'[메인키워드]';
-  const ks=g('ks')||'[서브키워드]';
-  const kl=g('kl')||'(없음)';
-
-  const prm2=`당신은 10년차 네이버 블로그 SEO 전문 마케터이자 콘텐츠 카피라이터입니다.\n${branchFull} 국비지원 관련 블로그 포스팅을 작성합니다.\n\n`+BIG+`\n[국비지원 블로그 프롬프트2]\n\n## 키워드 정보\n- 메인 키워드: ${km}\n- 서브 키워드: ${ks}\n- 롱테일 키워드: ${kl}\n\n## 주제\n국비지원 제도를 활용하여 ${branchFull}에서 수강료 부담 없이 디자인·IT 기술을 배울 수 있음을 알리는 정보성 블로그 글을 작성하세요.\n\n`+BIG+`\n## 국비지원 4가지 제도 안내\n\n**1. 국민취업지원제도**\n- 대상: 15~69세 취업 희망 구직자, 경력단절 여성, 청년·중장년 재취업 희망자\n- 혜택: 수강료 최대 100% 지원 + 구직촉진수당 지급\n- 신청: 고용24(www.work24.go.kr) 또는 가까운 고용복지플러스센터\n\n**2. 국민내일배움카드**\n- 대상: 재직자, 실업자, 구직자, 자영업자 등 누구나\n- 혜택: 최대 500만원 훈련비 지원 (자부담 15~55%)\n- 신청: HRD-Net(www.hrd.go.kr) 또는 고용복지플러스센터\n\n**3. 국가기간 전략산업직종훈련**\n- 대상: 취업을 희망하는 만 15세 이상 구직자\n- 혜택: 수강료 전액 국비 지원 + 훈련장려금 지급\n- 신청: 고용24 또는 학원 문의\n\n**4. 국비지원 안내 (종합)**\n- ${branchFull} 국비지원 훈련과정 상담 및 신청 안내\n- 디자인·AI·영상·인테리어 등 다양한 국비지원 훈련 과정 운영\n- 방문 상담 시 본인에게 맞는 지원 제도 즉시 안내\n\n`+BIG+`\n## 블로그 작성 지침\n\n글 유형: 정보성\n화자: 국비지원 정보를 친절히 안내하는 학원 블로거\n어조: 신뢰감 있는 정보 전달체 (~입니다 경어체)\n\n## 글 구조 (반드시 준수)\n1. 도입: \"수강료 때문에 망설이고 계신가요?\" 독자 공감으로 시작\n2. 국비지원 제도 소개: 4가지 제도를 이해하기 쉽게 정리\n3. ${branchFull} 활용 방법: 학원에서 국비지원 받는 절차\n4. 수강 가능 과목 안내: 어떤 디자인·IT 과정에 국비 적용되는지\n5. 신청 방법 정리: 단계별 신청 절차 안내\n6. CTA: 학원 방문 상담 유도\n\n## 필수 규칙\n- 메인 키워드 \"${km}\" → 제목 맨 앞 고정\n- 서브 키워드 \"${ks}\" → 3개 제목 모두에 포함\n- 글자 수: 1,300~1,800자\n- 마크다운 서식 금지 (순수 텍스트 출력)\n- 합격률·지원율 등 검증 불가 수치 임의 생성 금지\n\n## 출력 형식\n[제목 후보]\n1. (정보·안내형)\n2. (공감·혜택 강조형)\n3. (비교·정리형)\n\n[본문]\n(메타디스크립션 첫 문단부터 시작)\n`;
-
-  const box2=document.getElementById('output-box2');
-  if(box2) box2.value=prm2;
-}
-function cpPrm2(){
-  const b=document.getElementById('output-box2');
-  if(!b) return;
-  b.select();
-  navigator.clipboard.writeText(b.value).catch(()=>document.execCommand('copy'));
-  const btn=document.getElementById('cpbtn2');
-  if(!btn) return;
-  btn.textContent='✅ 복사완료'; btn.classList.add('ok');
-  setTimeout(()=>{btn.textContent='📋 전체 복사';btn.classList.remove('ok');},2000);
-}
 </script>
 </body>
 </html>
